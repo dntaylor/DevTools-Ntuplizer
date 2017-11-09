@@ -13,7 +13,7 @@ options.register('skipEvents', 0, VarParsing.multiplicity.singleton, VarParsing.
 options.register('reportEvery', 100, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Report every")
 options.register('isMC', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Sample is MC")
 #options.register('isMC', 1, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Sample is MC")
-#options.register('runMetFilter', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Run the recommended MET filters")
+options.register('runMetFilter', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Run the recommended MET filters")
 options.register('crab', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Make changes needed for crab")
 options.register('numThreads', 4, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Set number of threads")
 #options.register('runH', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Make changes needed for Run2016H")
@@ -41,7 +41,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.options = cms.untracked.PSet(
     allowUnscheduled = cms.untracked.bool(True),
-    wantSummary = cms.untracked.bool(True),
+    #wantSummary = cms.untracked.bool(True),
 )
 
 process.options.numberOfThreads=cms.untracked.uint32(options.numThreads)
@@ -208,6 +208,10 @@ process.ak4PFJetsMuonCleaned = cms.EDProducer(
     pfCandSrc = cms.InputTag("particleFlow"),
 )
 
+# special handling for 2017 reminiaod only
+if not options.isMC:
+    process.ak4PFJetsMuonCleaned.pfCandSrc = cms.InputTag("pfCandidatesBadMuonsCleaned")
+
 from PhysicsTools.PatAlgos.tools.helpers import cloneProcessingSnippet
 from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
 
@@ -218,6 +222,7 @@ jetSrc = 'ak4PFJetsMuonCleaned'
 process.PATTauSequence = cms.Sequence(process.PFTau+process.makePatTaus+process.selectedPatTaus)
 process.PATTauSequenceMuonCleaned = cloneProcessingSnippet(process,process.PATTauSequence, 'MuonCleaned')
 process.recoTauAK4PFJets08RegionMuonCleaned.pfCandSrc = cms.InputTag(jetSrc,'particleFlowMuonCleaned')
+process.hpsPFTauChargedIsoPtSumMuonCleaned.particleFlowSrc = cms.InputTag(jetSrc,'particleFlowMuonCleaned')
 massSearchReplaceAnyInputTag(process.PATTauSequenceMuonCleaned,cms.InputTag('ak4PFJets'),cms.InputTag(jetSrc))
 process.slimmedTausMuonCleaned = process.slimmedTaus.clone(src = cms.InputTag('selectedPatTausMuonCleaned'))
 
@@ -281,6 +286,7 @@ process.slimmedJetsMuonCleaned = process.slimmedJets.clone(src = cms.InputTag("s
 process.main_path = cms.Path()
 process.z_path = cms.Path()
 process.z_alt_path = cms.Path()
+process.z_tau_eff_path = cms.Path()
 
 # currently set to be fast, only using collections in AOD
 # can switch back to using MINIAOD collections but they will need to be produced first
@@ -300,6 +306,7 @@ process.HLT =cms.EDFilter("HLTHighLevel",
 )
 process.main_path *= process.HLT
 process.z_path *= process.HLT
+process.z_tau_eff_path *= process.HLT
 
 process.HLTalt =cms.EDFilter("HLTHighLevel",
      TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
@@ -350,16 +357,24 @@ process.analysisMuonsIsoCount = cms.EDFilter("PATCandViewCountFilter",
      maxNumber = cms.uint32(999),
      src = cms.InputTag('analysisMuonsIso'),
 )
+process.analysisMuonsIsoCountTauEff = cms.EDFilter("PATCandViewCountFilter",
+     minNumber = cms.uint32(1),
+     maxNumber = cms.uint32(999),
+     src = cms.InputTag('analysisMuonsIso'),
+)
 process.main_path *= process.analysisMuonsNoIso
 process.main_path *= process.analysisMuonsNoIsoCount
-process.main_path *= process.analysisMuonsIso
-process.main_path *= process.analysisMuonsIsoCount
+#process.main_path *= process.analysisMuonsIso
+#process.main_path *= process.analysisMuonsIsoCount
 process.z_path *= process.analysisMuonsNoIso
 process.z_path *= process.analysisMuonsIso
 process.z_path *= process.analysisMuonsIsoCount
 process.z_alt_path *= process.analysisMuonsNoIso
 process.z_alt_path *= process.analysisMuonsIso
 process.z_alt_path *= process.analysisMuonsIsoCount
+process.z_tau_eff_path *= process.analysisMuonsNoIso
+process.z_tau_eff_path *= process.analysisMuonsIso
+process.z_tau_eff_path *= process.analysisMuonsIsoCountTauEff
 
 #############################
 ### Second muon threshold ###
@@ -374,8 +389,8 @@ process.secondMuonCount = cms.EDFilter("PATCandViewCountFilter",
     maxNumber = cms.uint32(999),
     src = cms.InputTag('secondMuon'),
 )
-process.main_path *= process.secondMuon
-process.main_path *= process.secondMuonCount
+#process.main_path *= process.secondMuon
+#process.main_path *= process.secondMuonCount
 process.z_path *= process.secondMuon
 process.z_path *= process.secondMuonCount
 
@@ -397,7 +412,8 @@ process.z_alt_path *= process.secondMuonAltCount
 #########################
 #process.triggerMuon = cms.EDFilter('PATMuonSelector',
 process.triggerMuon = cms.EDFilter('MuonSelector',
-    src = cms.InputTag('secondMuon'),
+    #src = cms.InputTag('secondMuon'),
+    src = cms.InputTag('analysisMuonsNoIso'),
     #cut = cms.string('pt > 27.0'),
     cut = cms.string('pt > 24.0'),
 )
@@ -410,6 +426,8 @@ process.main_path *= process.triggerMuon
 process.main_path *= process.triggerMuonCount
 process.z_path *= process.triggerMuon
 process.z_path *= process.triggerMuonCount
+process.z_tau_eff_path *= process.triggerMuon
+process.z_tau_eff_path *= process.triggerMuonCount
 
 process.firstMuonAlt = cms.EDFilter('MuonSelector',
     src = cms.InputTag('secondMuonAlt'),
@@ -428,7 +446,8 @@ process.z_alt_path *= process.firstMuonAltCount
 ############################
 process.mumu = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("{0}@+ {0}@-".format('slimmedMuons')),
-    cut   = cms.string("deltaR(daughter(0).eta,daughter(0).phi,daughter(1).eta,daughter(1).phi)<1.5 && mass<30"),
+    #cut   = cms.string("deltaR(daughter(0).eta,daughter(0).phi,daughter(1).eta,daughter(1).phi)<1.5 && mass<30"),
+    cut   = cms.string("mass<30"),
 )
 process.mumuCount = cms.EDFilter("PATCandViewCountFilter",
      minNumber = cms.uint32(1),
@@ -467,6 +486,23 @@ process.analysisTausCount = cms.EDFilter("PATCandViewCountFilter",
 )
 process.main_path *= process.analysisTaus
 process.main_path *= process.analysisTausCount
+process.z_tau_eff_path *= process.analysisTaus
+process.z_tau_eff_path *= process.analysisTausCount
+
+############################
+### Tau Eff requirements ###
+############################
+process.mumuZTauEff = cms.EDProducer("CandViewShallowCloneCombiner",
+    decay = cms.string("{0} {1}".format('slimmedMuons','analysisTaus')),
+    cut   = cms.string("30<mass<210 && deltaR(daughter(0).eta,daughter(0).phi,daughter(1).eta,daughter(1).phi)>0.5"),
+)
+process.mumuZCountTauEff = cms.EDFilter("PATCandViewCountFilter",
+     minNumber = cms.uint32(1),
+     maxNumber = cms.uint32(999),
+     src = cms.InputTag('mumuZTauEff'),
+)
+process.z_tau_eff_path *= process.mumuZTauEff
+process.z_tau_eff_path *= process.mumuZCountTauEff
 
 #################
 ### Finish up ###
@@ -475,6 +511,7 @@ process.main_path *= process.analysisTausCount
 process.schedule.append(process.main_path)
 process.schedule.append(process.z_path)
 process.schedule.append(process.z_alt_path)
+process.schedule.append(process.z_tau_eff_path)
 
 # lumi summary
 process.TFileService = cms.Service("TFileService",
@@ -497,7 +534,7 @@ process.schedule.append(process.lumiSummary_step)
 # additional changes to standard MiniAOD content
 process.MINIAODoutput.outputCommands += [
     'keep *_slimmedTausMuonCleaned_*_*',
-    'keep *_slimmedJetsMuonCleaned_*_*',
+    #'keep *_slimmedJetsMuonCleaned_*_*', # can't keep without warnings, can be recreated later anyway
     'keep *_lumiSummary_*_*',
 ]
 if not options.isMC:
@@ -515,4 +552,13 @@ process.MINIAODoutputZSKIM = process.MINIAODoutput.clone(
 )
 process.MINIAODoutputZSKIM_step = cms.EndPath(process.MINIAODoutputZSKIM)
 process.schedule.append(process.MINIAODoutputZSKIM_step)
+
+process.MINIAODoutputZMUTAUSKIM = process.MINIAODoutput.clone(
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('z_tau_eff_path'),
+    ),
+    fileName = cms.untracked.string(options.outputFile.split('.root')[0]+'_zmutauskim.root'),
+)
+process.MINIAODoutputZMUTAUSKIM_step = cms.EndPath(process.MINIAODoutputZMUTAUSKIM)
+process.schedule.append(process.MINIAODoutputZMUTAUSKIM_step)
 
