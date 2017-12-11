@@ -426,6 +426,7 @@ tauBranches = commonJetCandidates.clone(
     photonPtSumOutsideSignalCone                     = cms.vstring('tauID("photonPtSumOutsideSignalCone")','F'),
     photonPtSumOutsideSignalConedR03                 = cms.vstring('tauID("photonPtSumOutsideSignalConedR03")','F'),
 
+    decayMode                                        = cms.vstring('decayMode','I'),
     decayModeFinding                                 = cms.vstring('tauID("decayModeFinding")','I'),
     decayModeFindingNewDMs                           = cms.vstring('tauID("decayModeFindingNewDMs")','I'),
     # pv
@@ -545,9 +546,15 @@ jetBranches = commonJetCandidates.clone(
 
 # mets
 metBranches = commonMet.clone(
+    # covariance
+    cov00                 = cms.vstring('getSignificanceMatrix[0][0]','F'),
+    cov01                 = cms.vstring('getSignificanceMatrix[0][1]','F'),
+    cov10                 = cms.vstring('getSignificanceMatrix[1][0]','F'),
+    cov11                 = cms.vstring('getSignificanceMatrix[1][1]','F'),
+    # uncor
     uncorEt               = cms.vstring('uncorPt','F'),
     uncorPhi              = cms.vstring('uncorPhi','F'),
-    ## shifts
+    # shifts
     et_jetResUp           = cms.vstring('userCand("JetResUp").pt()','F'),
     et_jetResDown         = cms.vstring('userCand("JetResDown").pt()','F'),
     et_jetEnUp            = cms.vstring('userCand("JetEnUp").pt()','F'),
