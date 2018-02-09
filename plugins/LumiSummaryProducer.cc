@@ -36,6 +36,7 @@ class LumiSummaryProducer : public edm::one::EDProducer<edm::EndLuminosityBlockP
 
       int nevents_;
       float summedWeights_;
+      double summedWeightsNew_;
 
 };
 
@@ -58,6 +59,7 @@ LumiSummaryProducer::LumiSummaryProducer(const edm::ParameterSet& iConfig):
   //register your products
   produces<int,   edm::InLumi>("numberOfEvents");
   produces<float, edm::InLumi>("sumOfWeightedEvents");
+  produces<double,edm::InLumi>("sumOfWeightedEventsNew");
 
 }
 
@@ -77,10 +79,13 @@ LumiSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   nevents_++;
   float genWeight = 0.;
+  double genWeightNew = 0.;
   if (genEventInfo.isValid()) {
       genWeight = genEventInfo->weight();
+      genWeightNew = genEventInfo->weight();
   }
   summedWeights_ += genWeight;
+  summedWeightsNew_ += genWeightNew;
 
 }
 
@@ -91,6 +96,7 @@ void LumiSummaryProducer::endJob() { }
 void LumiSummaryProducer::beginLuminosityBlock(edm::LuminosityBlock const& Lumi, edm::EventSetup const& iSetup) {
     nevents_ = 0;
     summedWeights_ = 0;
+    summedWeightsNew_ = 0;
 }
 
 void LumiSummaryProducer::endLuminosityBlock(edm::LuminosityBlock const& Lumi, edm::EventSetup const& iSetup) { }
@@ -100,6 +106,8 @@ void LumiSummaryProducer::endLuminosityBlockProduce(edm::LuminosityBlock& Lumi, 
     Lumi.put(std::move(neventsProduct),       "numberOfEvents");
     std::unique_ptr<float> summedWeightsProduct(new float(summedWeights_));
     Lumi.put(std::move(summedWeightsProduct), "sumOfWeightedEvents");
+    std::unique_ptr<double> summedWeightsProductNew(new double(summedWeightsNew_));
+    Lumi.put(std::move(summedWeightsProductNew), "sumOfWeightedEventsNew");
 }
 
 

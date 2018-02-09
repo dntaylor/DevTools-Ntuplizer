@@ -5,14 +5,14 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing('analysis')
 
 options.outputFile = 'mumutautau.root'
-options.inputFiles = '/store/data/Run2016H/SingleMuon/AOD/PromptReco-v2/000/284/035/00000/5849226D-569F-E611-B874-02163E011EAC.root'
-#options.inputFiles = '/store/mc/RunIISummer16DR80Premix/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext2-v1/60001/D04F22AE-3FF1-E611-BDB5-02163E019C78.root'
+#options.inputFiles = '/store/data/Run2016H/SingleMuon/AOD/PromptReco-v2/000/284/035/00000/5849226D-569F-E611-B874-02163E011EAC.root'
+options.inputFiles = '/store/mc/RunIISummer16DR80Premix/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext2-v1/60001/D04F22AE-3FF1-E611-BDB5-02163E019C78.root'
 #options.inputFiles = '/store/mc/RunIISummer16DR80Premix/SUSYGluGluToHToAA_AToMuMu_AToTauTau_M-15_TuneCUETP8M1_13TeV_madgraph_pythia8/AODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/120000/82114092-19BB-E611-926B-FA163E0D86FB.root'
 options.maxEvents = -1
 options.register('skipEvents', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Events to skip")
 options.register('reportEvery', 100, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Report every")
-options.register('isMC', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Sample is MC")
-#options.register('isMC', 1, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Sample is MC")
+#options.register('isMC', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Sample is MC")
+options.register('isMC', 1, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Sample is MC")
 options.register('runMetFilter', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Run the recommended MET filters")
 options.register('crab', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Make changes needed for crab")
 options.register('numThreads', 4, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Set number of threads")
@@ -249,10 +249,10 @@ else:
         if hasattr(process,attr): delattr(process,attr)
 
 # input for slimmedMuons
-process.selectedPatMuons = cms.EDFilter('PATMuonSelector',
-    src = cms.InputTag('patMuons'),
-    cut = cms.string('pt > 3.0 && isPFMuon && (isGlobalMuon || isTrackerMuon)'),
-)
+#process.selectedPatMuons = cms.EDFilter('PATMuonSelector',
+#    src = cms.InputTag('patMuons'),
+#    cut = cms.string('pt > 3.0 && isPFMuon && (isGlobalMuon || isTrackerMuon)'),
+#)
 
 #######################################
 ### Update btagging for cleaned jet ###
@@ -336,7 +336,8 @@ process.analysisMuonsNoIso = cms.EDFilter('MuonSelector',
     #src = cms.InputTag('slimmedMuonsWithID'),
     src = cms.InputTag('muons'),
     #cut = cms.string('pt > 3.0 && abs(eta)<2.4 && (isMediumMuon || userInt("isMediumMuonICHEP"))'),
-    cut = cms.string('pt > 3.0 && abs(eta)<2.4 && isPFMuon && (isGlobalMuon || isTrackerMuon)'),
+    #cut = cms.string('pt > 3.0 && abs(eta)<2.4 && isPFMuon && (isGlobalMuon || isTrackerMuon)'),
+    cut = cms.string('pt > 3.0 && abs(eta)<2.4'),
 )
 #process.analysisMuonsIso = cms.EDFilter('PATMuonSelector',
 process.analysisMuonsIso = cms.EDFilter('MuonSelector',
@@ -349,6 +350,16 @@ process.analysisMuonsIso = cms.EDFilter('MuonSelector',
 )
 process.analysisMuonsNoIsoCount = cms.EDFilter("PATCandViewCountFilter",
      minNumber = cms.uint32(3),
+     maxNumber = cms.uint32(999),
+     src = cms.InputTag('analysisMuonsNoIso'),
+)
+process.analysisMuonsNoIsoCountZ = cms.EDFilter("PATCandViewCountFilter",
+     minNumber = cms.uint32(2),
+     maxNumber = cms.uint32(999),
+     src = cms.InputTag('analysisMuonsNoIso'),
+)
+process.analysisMuonsNoIsoCountZTau = cms.EDFilter("PATCandViewCountFilter",
+     minNumber = cms.uint32(1),
      maxNumber = cms.uint32(999),
      src = cms.InputTag('analysisMuonsNoIso'),
 )
@@ -367,21 +378,21 @@ process.main_path *= process.analysisMuonsNoIsoCount
 #process.main_path *= process.analysisMuonsIso
 #process.main_path *= process.analysisMuonsIsoCount
 process.z_path *= process.analysisMuonsNoIso
-process.z_path *= process.analysisMuonsIso
-process.z_path *= process.analysisMuonsIsoCount
+#process.z_path *= process.analysisMuonsIso
+process.z_path *= process.analysisMuonsNoIsoCountZ
 process.z_alt_path *= process.analysisMuonsNoIso
-process.z_alt_path *= process.analysisMuonsIso
-process.z_alt_path *= process.analysisMuonsIsoCount
+#process.z_alt_path *= process.analysisMuonsIso
+process.z_alt_path *= process.analysisMuonsNoIsoCountZ
 process.z_tau_eff_path *= process.analysisMuonsNoIso
-process.z_tau_eff_path *= process.analysisMuonsIso
-process.z_tau_eff_path *= process.analysisMuonsIsoCountTauEff
+#process.z_tau_eff_path *= process.analysisMuonsIso
+process.z_tau_eff_path *= process.analysisMuonsNoIsoCountZTau
 
 #############################
 ### Second muon threshold ###
 #############################
 #process.secondMuon = cms.EDFilter('PATMuonSelector',
 process.secondMuon = cms.EDFilter('MuonSelector',
-    src = cms.InputTag('analysisMuonsIso'),
+    src = cms.InputTag('analysisMuonsNoIso'),
     cut = cms.string('pt > 3.0'),
 )
 process.secondMuonCount = cms.EDFilter("PATCandViewCountFilter",
@@ -396,7 +407,7 @@ process.z_path *= process.secondMuonCount
 
 
 process.secondMuonAlt = cms.EDFilter('MuonSelector',
-    src = cms.InputTag('analysisMuonsIso'),
+    src = cms.InputTag('analysisMuonsNoIso'),
     cut = cms.string('pt > 8.0'),
 )
 process.secondMuonAltCount = cms.EDFilter("PATCandViewCountFilter",
@@ -447,7 +458,7 @@ process.z_alt_path *= process.firstMuonAltCount
 process.mumu = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("{0}@+ {0}@-".format('slimmedMuons')),
     #cut   = cms.string("deltaR(daughter(0).eta,daughter(0).phi,daughter(1).eta,daughter(1).phi)<1.5 && mass<30"),
-    cut   = cms.string("mass<30"),
+    cut   = cms.string("1<mass<60"),
 )
 process.mumuCount = cms.EDFilter("PATCandViewCountFilter",
      minNumber = cms.uint32(1),

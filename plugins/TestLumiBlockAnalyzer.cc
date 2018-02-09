@@ -58,6 +58,7 @@ class TestLumiBlockAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResour
       // ----------member data ---------------------------
       edm::EDGetTokenT<int> neventsToken_;
       edm::EDGetTokenT<float> summedWeightsToken_;
+      edm::EDGetTokenT<double> summedWeightsTokenNew_;
 };
 
 //
@@ -73,7 +74,8 @@ class TestLumiBlockAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResour
 //
 TestLumiBlockAnalyzer::TestLumiBlockAnalyzer(const edm::ParameterSet& iConfig):
   neventsToken_(consumes<int, edm::InLumi>(iConfig.getParameter<edm::InputTag>("nevents"))),
-  summedWeightsToken_(consumes<float, edm::InLumi>(iConfig.getParameter<edm::InputTag>("summedWeights")))
+  summedWeightsToken_(consumes<float, edm::InLumi>(iConfig.getParameter<edm::InputTag>("summedWeights"))),
+  summedWeightsTokenNew_(consumes<double, edm::InLumi>(iConfig.getParameter<edm::InputTag>("summedWeightsNew")))
 {
    //now do what ever initialization is needed
 
@@ -120,7 +122,9 @@ void TestLumiBlockAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& Lumi,
     Lumi.getByToken(neventsToken_, neventsHandle);
     edm::Handle<float> summedWeightsHandle;
     Lumi.getByToken(summedWeightsToken_, summedWeightsHandle);
-    std::cout << "nevents: " << *neventsHandle << " summedWeights: " << *summedWeightsHandle << std::endl;
+    edm::Handle<double> summedWeightsHandleNew;
+    Lumi.getByToken(summedWeightsTokenNew_, summedWeightsHandleNew);
+    std::cout << "nevents: " << *neventsHandle << " summedWeights: " << *summedWeightsHandle << " summedWeightsNew: " << *summedWeightsHandleNew << std::endl;
 
 }
 
