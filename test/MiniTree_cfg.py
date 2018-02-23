@@ -7,7 +7,7 @@ options = VarParsing('analysis')
 
 options.outputFile = 'miniTree.root'
 #options.inputFiles= '/store/mc/RunIIFall17MiniAOD/WZ_TuneCP5_13TeV-pythia8/MINIAODSIM/94X_mc2017_realistic_v10-v1/60000/1C7C7FB8-14E6-E711-90A9-0025905A60FE.root' # WZ
-options.inputFiles = '/store/data/Run2017F/DoubleMuon/MINIAOD/17Nov2017-v1/50000/009DC3A2-A7DE-E711-99F7-02163E013717.root' # ReReco
+#options.inputFiles = '/store/data/Run2017F/DoubleMuon/MINIAOD/17Nov2017-v1/50000/009DC3A2-A7DE-E711-99F7-02163E013717.root' # ReReco
 options.maxEvents = -1
 options.register('skipEvents', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Events to skip")
 options.register('reportEvery', 100, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Report every")
@@ -96,7 +96,10 @@ process.MessageLogger.cerr.FwkReport.reportEvery = options.reportEvery
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(options.inputFiles),
+    fileNames = cms.untracked.vstring(
+      '/store/data/Run2017F/JetHT/MINIAOD/17Nov2017-v1/50000/A668D809-A0DF-E711-A5A5-001E677924CE.root', 
+      '/store/data/Run2017F/JetHT/MINIAOD/17Nov2017-v1/50000/348B51A9-9FDF-E711-95F6-001E677926C2.root', 
+      ),
     skipEvents = cms.untracked.uint32(options.skipEvents),
 )
 
@@ -172,7 +175,7 @@ minCounts = {
     'muons'     : 1,
     'taus'      : 1,
     'photons'   : 1,
-    'jets'      : 0,
+    'jets'      : 1,
 }
 
 # maximum candidates to store
@@ -331,3 +334,5 @@ for f in filters:
     process.miniTreePath += cms.ignore(f)
 process.miniTreePath += process.miniTree
 process.schedule.append(process.miniTreePath)
+
+open('dump.py', 'w').write(process.dumpPython())
