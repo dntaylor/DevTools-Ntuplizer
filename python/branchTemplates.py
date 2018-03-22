@@ -362,6 +362,9 @@ tauBranches = commonJetCandidates.clone(
     againstMuonLoose3                                = cms.vstring('tauID("againstMuonLoose3")','I'),
     againstMuonTight3                                = cms.vstring('tauID("againstMuonTight3")','I'),
 
+    byLooseCombinedIsolationDeltaBetaCorr3Hits       = cms.vstring('tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits")','I'),
+    byMediumCombinedIsolationDeltaBetaCorr3Hits      = cms.vstring('tauID("byMediumCombinedIsolationDeltaBetaCorr3Hits")','I'),
+    byTightCombinedIsolationDeltaBetaCorr3Hits       = cms.vstring('tauID("byTightCombinedIsolationDeltaBetaCorr3Hits")','I'),
     byCombinedIsolationDeltaBetaCorrRaw3Hits         = cms.vstring('tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits")','I'),
 
     byVLooseIsolationMVArun2v1DBdR03oldDMwLT         = cms.vstring('tauID("byVLooseIsolationMVArun2v1DBdR03oldDMwLT")','I'),
