@@ -503,18 +503,19 @@ process.z_tau_eff_path *= process.analysisTausCount
 ############################
 ### Tau Eff requirements ###
 ############################
-#process.mumuZTauEff = cms.EDProducer("CandViewShallowCloneCombiner",
-#    decay = cms.string("{0} {1}".format('slimmedMuons','slimmedTausMuonCleaned')),
-#    #cut   = cms.string("30<mass<210 && deltaR(daughter(0).eta,daughter(0).phi,daughter(1).eta,daughter(1).phi)>0.5"),
-#    cut   = cms.string("30<mass<210"),
-#)
-#process.mumuZCountTauEff = cms.EDFilter("PATCandViewCountFilter",
-#     minNumber = cms.uint32(1),
-#     maxNumber = cms.uint32(999),
-#     src = cms.InputTag('mumuZTauEff'),
-#)
-#process.z_tau_eff_path *= process.mumuZTauEff
-#process.z_tau_eff_path *= process.mumuZCountTauEff
+process.mumuZTauEff = cms.EDProducer("CandViewShallowCloneCombiner",
+    decay = cms.string("{0} {1}".format('slimmedMuons','slimmedTausMuonCleaned')),
+    checkCharge = cms.bool(False),
+    #cut   = cms.string("30<mass<210 && deltaR(daughter(0).eta,daughter(0).phi,daughter(1).eta,daughter(1).phi)>0.5"),
+    cut   = cms.string("30<mass<210"),
+)
+process.mumuZCountTauEff = cms.EDFilter("PATCandViewCountFilter",
+     minNumber = cms.uint32(1),
+     maxNumber = cms.uint32(999),
+     src = cms.InputTag('mumuZTauEff'),
+)
+process.z_tau_eff_path *= process.mumuZTauEff
+process.z_tau_eff_path *= process.mumuZCountTauEff
 
 #################
 ### Finish up ###

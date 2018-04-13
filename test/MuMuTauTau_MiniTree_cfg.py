@@ -145,6 +145,7 @@ collections = {
     'electrons'    : 'slimmedElectrons',
     'muons'        : 'slimmedMuons',
     'taus'         : 'slimmedTausMuonCleaned',
+    #'taus'         : 'slimmedTaus',
     'photons'      : 'slimmedPhotons',
     'jets'         : 'slimmedJets',
     'pfmet'        : 'slimmedMETs',
