@@ -526,6 +526,7 @@ jetBranches = commonJetCandidates.clone(
     passCMVAv2T                                  = cms.vstring('? bDiscriminator("pfCombinedMVAV2BJetTags")>0.9432 ? 1 : 0','I'),
     # flavor
     partonFlavour                                = cms.vstring('partonFlavour','I'),
+    hadronFlavour                                = cms.vstring('hadronFlavour','I'),
     # id variables
     neutralHadronEnergyFraction                  = cms.vstring('neutralHadronEnergyFraction','F'),
     neutralEmEnergyFraction                      = cms.vstring('neutralEmEnergyFraction','F'),
