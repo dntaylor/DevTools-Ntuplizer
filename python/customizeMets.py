@@ -160,6 +160,6 @@ def customizeMets(process,coll,**kwargs):
     coll['electrons'] = eSrc
     coll['taus'] = tSrc
     coll['jets'] = jSrc
-    coll['packed'] = pfSrc
+    #coll['packed'] = pfSrc
 
     return coll

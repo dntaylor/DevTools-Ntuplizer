@@ -135,6 +135,23 @@ vertexBranches = commonVertex.clone()
 genParticleBranches = commonGenCandidates.clone()
 genJetBranches = commonGenJetCandidates.clone()
 
+# packed candidates
+packedBranches = commonCandidates.clone(
+    dz                             = cms.vstring('dz','F'),
+    dxy                            = cms.vstring('dxy','F'),
+    hcalFraction                   = cms.vstring('hcalFraction','F'),
+    # ID
+    isCaloMuon                     = cms.vstring('isCaloMuon','I'),
+    isConvertedPhoton              = cms.vstring('isConvertedPhoton','I'),
+    isElectron                     = cms.vstring('isElectron','I'),
+    isGlobalMuon                   = cms.vstring('isGlobalMuon','I'),
+    isJet                          = cms.vstring('isJet','I'),
+    isMuon                         = cms.vstring('isMuon','I'),
+    isPhoton                       = cms.vstring('isPhoton','I'),
+    isStandAloneMuon               = cms.vstring('isStandAloneMuon','I'),
+    isTrackerMuon                  = cms.vstring('isTrackerMuon','I'),
+)
+
 # electrons
 electronBranches = commonPatCandidates.clone(
     # supercluster
@@ -526,6 +543,7 @@ jetBranches = commonJetCandidates.clone(
     passCMVAv2T                                  = cms.vstring('? bDiscriminator("pfCombinedMVAV2BJetTags")>0.9432 ? 1 : 0','I'),
     # flavor
     partonFlavour                                = cms.vstring('partonFlavour','I'),
+    hadronFlavour                                = cms.vstring('hadronFlavour','I'),
     # id variables
     neutralHadronEnergyFraction                  = cms.vstring('neutralHadronEnergyFraction','F'),
     neutralEmEnergyFraction                      = cms.vstring('neutralEmEnergyFraction','F'),

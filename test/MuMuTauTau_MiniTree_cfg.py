@@ -6,13 +6,13 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing('analysis')
 
 options.outputFile = 'mmtt_miniTree.root'
-options.inputFiles = '/store/user/dntaylor/2017-11-03_Skim_MuMuTauTau_v4/SUSYGluGluToHToAA_AToMuMu_AToTauTau_M-15_TuneCUETP8M1_13TeV_madgraph_pythia8/2017-11-03_Skim_MuMuTauTau_v4/171105_175447/0000/mumutautau_1.root'
-#options.inputFiles = '/store/user/dntaylor/2017-10-27_Skim_MuMuTauTau_80X_v1/SingleMuon/2017-10-27_Skim_MuMuTauTau_80X_v1/171027_203658/0000/mumutautau_1.root'
+#options.inputFiles = '/store/user/dntaylor/2017-11-03_Skim_MuMuTauTau_v4/SUSYGluGluToHToAA_AToMuMu_AToTauTau_M-15_TuneCUETP8M1_13TeV_madgraph_pythia8/2017-11-03_Skim_MuMuTauTau_v4/171105_175447/0000/mumutautau_1.root'
+options.inputFiles = '/store/user/dntaylor/2017-11-03_Skim_MuMuTauTau_v4/SingleMuon/2017-11-03_Skim_MuMuTauTau_v4/171104_025825/0000/mumutautau_1.root'
 options.maxEvents = -1
 options.register('skipEvents', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Events to skip")
 options.register('reportEvery', 100, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Report every")
-options.register('isMC', 1, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Sample is MC")
-#options.register('isMC', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Sample is MC")
+#options.register('isMC', 1, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Sample is MC")
+options.register('isMC', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Sample is MC")
 options.register('crab', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Make changes needed for crab")
 
 options.parseArguments()
@@ -163,9 +163,15 @@ selections = {
     'taus'        : 'pt>10 && abs(eta)<2.3',
     'photons'     : 'pt>10 && abs(eta)<3.0',
     'jets'        : 'pt>15 && abs(eta)<4.7',
+    'packed'      : 'pt>1',
 }
 #if options.isMC:
 #    selections['genParticles'] = 'pt>4'
+
+patTypes = {
+    'packed' : 'PackedCandidate',
+}
+
 
 # requirements to store events
 minCounts = {
@@ -281,13 +287,15 @@ collections = customizeMets(
 print 'Selecting objects'
 from DevTools.Ntuplizer.objectTools import objectSelector, objectCleaner
 for coll in selections:
-    collections[coll] = objectSelector(process,coll,collections[coll],selections[coll])
+    collections[coll] = objectSelector(process,coll,collections[coll],selections[coll],patType=patTypes.get(coll,None))
 # TODO: memory problem
 #for coll in cleaning:
 #    collections[coll] = objectCleaner(process,coll,collections[coll],collections,cleaning[coll])
 
 # add the analyzer
 process.load("DevTools.Ntuplizer.MiniTree_cfi")
+
+from DevTools.Ntuplizer.branchTemplates import *
 
 process.miniTree.isData = not options.isMC
 #process.miniTree.filterResults = cms.InputTag('TriggerResults', '', 'PAT') if options.isMC else cms.InputTag('TriggerResults', '', 'RECO')
@@ -304,6 +312,12 @@ process.miniTree.collections.muons.collection = collections['muons']
 process.miniTree.collections.taus.collection = collections['taus']
 process.miniTree.collections.photons.collection = collections['photons']
 process.miniTree.collections.jets.collection = collections['jets']
+process.miniTree.collections.packed = cms.PSet(
+    collection = cms.InputTag(collections['packed']),
+    branches = packedBranches,
+    minCount = cms.int32(0),
+    maxCount = cms.int32(0),
+)
 process.miniTree.collections.pfmet.collection = collections['pfmet']
 process.miniTree.rho = collections['rho']
 for coll, count in minCounts.iteritems():
