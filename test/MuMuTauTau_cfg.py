@@ -19,6 +19,12 @@ options.register('numThreads', 4, VarParsing.multiplicity.singleton, VarParsing.
 #options.register('runH', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Make changes needed for Run2016H")
 options.register('runH', 1, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Make changes needed for Run2016H")
 
+# default to doFilters = True, otherwise, only filters on the trigger, everything else passes
+doFilters = True
+doMMMT = False
+doMM = False
+doMT = True
+
 options.parseArguments()
 
 #####################
@@ -226,7 +232,12 @@ process.hpsPFTauChargedIsoPtSumMuonCleaned.particleFlowSrc = cms.InputTag(jetSrc
 massSearchReplaceAnyInputTag(process.PATTauSequenceMuonCleaned,cms.InputTag('ak4PFJets'),cms.InputTag(jetSrc))
 process.slimmedTausMuonCleaned = process.slimmedTaus.clone(src = cms.InputTag('selectedPatTausMuonCleaned'))
 
-process.selectedPatTausMuonCleaned.cut = cms.string("pt > 10. && tauID(\'decayModeFindingNewDMs\')> 0.5")
+process.combinatoricRecoTausMuonCleaned.minJetPt = cms.double(8.0)
+process.selectedPatTausMuonCleaned.cut = cms.string("pt > 8. && tauID(\'decayModeFindingNewDMs\')> 0.5")
+
+# lower pt for nonclean
+process.combinatoricRecoTaus.minJetPt = cms.double(8.0)
+process.selectedPatTaus.cut = cms.string("pt > 8. && tauID(\'decayModeFindingNewDMs\')> 0.5")
 
 if options.isMC:
     process.tauGenJetsMuonCleaned.GenParticles = "prunedGenParticles"
@@ -247,6 +258,11 @@ else:
     attrsToDelete += ['tauGenJetsSelectorAllHadronsMuonCleaned'+postfix]
     for attr in attrsToDelete:
         if hasattr(process,attr): delattr(process,attr)
+
+# boosted tau modification
+process.combinatoricRecoTausBoosted.minJetPt = cms.double(8.0)
+process.ca8PFJetsCHSprunedForBoostedTaus.jetPtMin = cms.double(8.0)
+process.ca8PFJetsCHSprunedForBoostedTaus.subjetPtMin = cms.double(8.0)
 
 # input for slimmedMuons
 #process.selectedPatMuons = cms.EDFilter('PATMuonSelector',
@@ -285,8 +301,8 @@ process.slimmedJetsMuonCleaned = process.slimmedJets.clone(src = cms.InputTag("s
 #################
 process.main_path = cms.Path()
 process.z_path = cms.Path()
-process.z_alt_path = cms.Path()
 process.z_tau_eff_path = cms.Path()
+process.z_tau_eff_muclean_path = cms.Path()
 
 # currently set to be fast, only using collections in AOD
 # can switch back to using MINIAOD collections but they will need to be produced first
@@ -307,215 +323,209 @@ process.HLT =cms.EDFilter("HLTHighLevel",
 process.main_path *= process.HLT
 process.z_path *= process.HLT
 process.z_tau_eff_path *= process.HLT
+process.z_tau_eff_muclean_path *= process.HLT
 
-process.HLTalt =cms.EDFilter("HLTHighLevel",
-     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
-     HLTPaths = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*"),
-     eventSetupPathsKey = cms.string(''),
-     andOr = cms.bool(True), #----- True = OR, False = AND between the HLTPaths
-     throw = cms.bool(False) # throw exception on unknown path names
-)
-process.z_alt_path *= process.HLTalt
+if doFilters:
 
-#########################
-### Muon ID embedding ###
-#########################
-#process.slimmedMuonsWithID = cms.EDProducer("MuonIdEmbedder",
-#    src = cms.InputTag('slimmedMuons'),
-#    vertexSrc = cms.InputTag('offlineSlimmedPrimaryVertices'),
-#)
-#process.main_path *= process.slimmedMuonsWithID
-#process.z_path *= process.slimmedMuonsWithID
-
-
-###############
-### Muon ID ###
-###############
-#process.analysisMuonsNoIso = cms.EDFilter('PATMuonSelector',
-process.analysisMuonsNoIso = cms.EDFilter('MuonSelector',
-    #src = cms.InputTag('slimmedMuonsWithID'),
-    src = cms.InputTag('muons'),
-    #cut = cms.string('pt > 3.0 && abs(eta)<2.4 && (isMediumMuon || userInt("isMediumMuonICHEP"))'),
-    #cut = cms.string('pt > 3.0 && abs(eta)<2.4 && isPFMuon && (isGlobalMuon || isTrackerMuon)'),
-    cut = cms.string('pt > 3.0 && abs(eta)<2.4'),
-)
-#process.analysisMuonsIso = cms.EDFilter('PATMuonSelector',
-process.analysisMuonsIso = cms.EDFilter('MuonSelector',
-    src = cms.InputTag('analysisMuonsNoIso'),
-    cut = cms.string('(pfIsolationR04().sumChargedHadronPt'
-                     '+ max(0., pfIsolationR04().sumNeutralHadronEt'
-                     '+ pfIsolationR04().sumPhotonEt'
-                     '- 0.5*pfIsolationR04().sumPUPt))'
-                     '/pt()<0.25'),
-)
-process.analysisMuonsNoIsoCount = cms.EDFilter("PATCandViewCountFilter",
-     minNumber = cms.uint32(3),
-     maxNumber = cms.uint32(999),
-     src = cms.InputTag('analysisMuonsNoIso'),
-)
-process.analysisMuonsNoIsoCountZ = cms.EDFilter("PATCandViewCountFilter",
-     minNumber = cms.uint32(2),
-     maxNumber = cms.uint32(999),
-     src = cms.InputTag('analysisMuonsNoIso'),
-)
-process.analysisMuonsNoIsoCountZTau = cms.EDFilter("PATCandViewCountFilter",
-     minNumber = cms.uint32(1),
-     maxNumber = cms.uint32(999),
-     src = cms.InputTag('analysisMuonsNoIso'),
-)
-process.analysisMuonsIsoCount = cms.EDFilter("PATCandViewCountFilter",
-     minNumber = cms.uint32(2),
-     maxNumber = cms.uint32(999),
-     src = cms.InputTag('analysisMuonsIso'),
-)
-process.analysisMuonsIsoCountTauEff = cms.EDFilter("PATCandViewCountFilter",
-     minNumber = cms.uint32(1),
-     maxNumber = cms.uint32(999),
-     src = cms.InputTag('analysisMuonsIso'),
-)
-process.main_path *= process.analysisMuonsNoIso
-process.main_path *= process.analysisMuonsNoIsoCount
-#process.main_path *= process.analysisMuonsIso
-#process.main_path *= process.analysisMuonsIsoCount
-process.z_path *= process.analysisMuonsNoIso
-#process.z_path *= process.analysisMuonsIso
-process.z_path *= process.analysisMuonsNoIsoCountZ
-process.z_alt_path *= process.analysisMuonsNoIso
-#process.z_alt_path *= process.analysisMuonsIso
-process.z_alt_path *= process.analysisMuonsNoIsoCountZ
-process.z_tau_eff_path *= process.analysisMuonsNoIso
-#process.z_tau_eff_path *= process.analysisMuonsIso
-process.z_tau_eff_path *= process.analysisMuonsNoIsoCountZTau
-
-#############################
-### Second muon threshold ###
-#############################
-#process.secondMuon = cms.EDFilter('PATMuonSelector',
-process.secondMuon = cms.EDFilter('MuonSelector',
-    src = cms.InputTag('analysisMuonsNoIso'),
-    cut = cms.string('pt > 3.0'),
-)
-process.secondMuonCount = cms.EDFilter("PATCandViewCountFilter",
-    minNumber = cms.uint32(2),
-    maxNumber = cms.uint32(999),
-    src = cms.InputTag('secondMuon'),
-)
-#process.main_path *= process.secondMuon
-#process.main_path *= process.secondMuonCount
-process.z_path *= process.secondMuon
-process.z_path *= process.secondMuonCount
-
-
-process.secondMuonAlt = cms.EDFilter('MuonSelector',
-    src = cms.InputTag('analysisMuonsNoIso'),
-    cut = cms.string('pt > 8.0'),
-)
-process.secondMuonAltCount = cms.EDFilter("PATCandViewCountFilter",
-    minNumber = cms.uint32(2),
-    maxNumber = cms.uint32(999),
-    src = cms.InputTag('secondMuonAlt'),
-)
-process.z_alt_path *= process.secondMuonAlt
-process.z_alt_path *= process.secondMuonAltCount
-
-#########################
-### Trigger Threshold ###
-#########################
-#process.triggerMuon = cms.EDFilter('PATMuonSelector',
-process.triggerMuon = cms.EDFilter('MuonSelector',
-    #src = cms.InputTag('secondMuon'),
-    src = cms.InputTag('analysisMuonsNoIso'),
-    #cut = cms.string('pt > 27.0'),
-    cut = cms.string('pt > 24.0'),
-)
-process.triggerMuonCount = cms.EDFilter("PATCandViewCountFilter",
-     minNumber = cms.uint32(1),
-     maxNumber = cms.uint32(999),
-     src = cms.InputTag('triggerMuon'),
-)
-process.main_path *= process.triggerMuon
-process.main_path *= process.triggerMuonCount
-process.z_path *= process.triggerMuon
-process.z_path *= process.triggerMuonCount
-process.z_tau_eff_path *= process.triggerMuon
-process.z_tau_eff_path *= process.triggerMuonCount
-
-process.firstMuonAlt = cms.EDFilter('MuonSelector',
-    src = cms.InputTag('secondMuonAlt'),
-    cut = cms.string('pt > 17.0'),
-)
-process.firstMuonAltCount = cms.EDFilter("PATCandViewCountFilter",
-    minNumber = cms.uint32(1),
-    maxNumber = cms.uint32(999),
-    src = cms.InputTag('firstMuonAlt'),
-)
-process.z_alt_path *= process.firstMuonAlt
-process.z_alt_path *= process.firstMuonAltCount
-
-############################
-### Require two OS muons ###
-############################
-process.mumu = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("{0}@+ {0}@-".format('slimmedMuons')),
-    #cut   = cms.string("deltaR(daughter(0).eta,daughter(0).phi,daughter(1).eta,daughter(1).phi)<1.5 && mass<30"),
-    cut   = cms.string("1<mass<60"),
-)
-process.mumuCount = cms.EDFilter("PATCandViewCountFilter",
-     minNumber = cms.uint32(1),
-     maxNumber = cms.uint32(999),
-     src = cms.InputTag('mumu'),
-)
-process.main_path *= process.mumu
-process.main_path *= process.mumuCount
-
-process.mumuZ = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("{0}@+ {0}@-".format('slimmedMuons')),
-    cut   = cms.string("60<mass<120"),
-)
-process.mumuZCount = cms.EDFilter("PATCandViewCountFilter",
-     minNumber = cms.uint32(1),
-     maxNumber = cms.uint32(999),
-     src = cms.InputTag('mumuZ'),
-)
-process.z_path *= process.mumuZ
-process.z_path *= process.mumuZCount
-process.z_alt_path *= process.mumuZ
-process.z_alt_path *= process.mumuZCount
-
-########################
-### Tau requirements ###
-########################
-# first step that requires the new collection
-process.analysisTaus = cms.EDFilter('PATTauSelector',
-    src = cms.InputTag('slimmedTausMuonCleaned'),
-    cut = cms.string('pt > 10.0 && abs(eta)<2.3 && tauID(\'decayModeFinding\')> 0.5'),
-)
-process.analysisTausCount = cms.EDFilter("PATCandViewCountFilter",
-     minNumber = cms.uint32(1),
-     maxNumber = cms.uint32(999),
-     src = cms.InputTag('analysisTaus'),
-)
-process.main_path *= process.analysisTaus
-process.main_path *= process.analysisTausCount
-process.z_tau_eff_path *= process.analysisTaus
-process.z_tau_eff_path *= process.analysisTausCount
-
-############################
-### Tau Eff requirements ###
-############################
-process.mumuZTauEff = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("{0} {1}".format('slimmedMuons','slimmedTausMuonCleaned')),
-    checkCharge = cms.bool(False),
-    #cut   = cms.string("30<mass<210 && deltaR(daughter(0).eta,daughter(0).phi,daughter(1).eta,daughter(1).phi)>0.5"),
-    cut   = cms.string("30<mass<210"),
-)
-process.mumuZCountTauEff = cms.EDFilter("PATCandViewCountFilter",
-     minNumber = cms.uint32(1),
-     maxNumber = cms.uint32(999),
-     src = cms.InputTag('mumuZTauEff'),
-)
-process.z_tau_eff_path *= process.mumuZTauEff
-process.z_tau_eff_path *= process.mumuZCountTauEff
+    #########################
+    ### Muon ID embedding ###
+    #########################
+    #process.slimmedMuonsWithID = cms.EDProducer("MuonIdEmbedder",
+    #    src = cms.InputTag('slimmedMuons'),
+    #    vertexSrc = cms.InputTag('offlineSlimmedPrimaryVertices'),
+    #)
+    #process.main_path *= process.slimmedMuonsWithID
+    #process.z_path *= process.slimmedMuonsWithID
+    
+    
+    ###############
+    ### Muon ID ###
+    ###############
+    #process.analysisMuonsNoIso = cms.EDFilter('PATMuonSelector',
+    process.analysisMuonsNoIso = cms.EDFilter('MuonSelector',
+        #src = cms.InputTag('slimmedMuonsWithID'),
+        src = cms.InputTag('muons'),
+        #cut = cms.string('pt > 3.0 && abs(eta)<2.4 && (isMediumMuon || userInt("isMediumMuonICHEP"))'),
+        #cut = cms.string('pt > 3.0 && abs(eta)<2.4 && isPFMuon && (isGlobalMuon || isTrackerMuon)'),
+        cut = cms.string('pt > 3.0 && abs(eta)<2.4'),
+    )
+    #process.analysisMuonsIso = cms.EDFilter('PATMuonSelector',
+    process.analysisMuonsIso = cms.EDFilter('MuonSelector',
+        src = cms.InputTag('analysisMuonsNoIso'),
+        cut = cms.string('(pfIsolationR04().sumChargedHadronPt'
+                         '+ max(0., pfIsolationR04().sumNeutralHadronEt'
+                         '+ pfIsolationR04().sumPhotonEt'
+                         '- 0.5*pfIsolationR04().sumPUPt))'
+                         '/pt()<0.25'),
+    )
+    process.analysisMuonsNoIsoCount = cms.EDFilter("PATCandViewCountFilter",
+         minNumber = cms.uint32(3),
+         maxNumber = cms.uint32(999),
+         src = cms.InputTag('analysisMuonsNoIso'),
+    )
+    process.analysisMuonsNoIsoCountZ = cms.EDFilter("PATCandViewCountFilter",
+         minNumber = cms.uint32(2),
+         maxNumber = cms.uint32(999),
+         src = cms.InputTag('analysisMuonsNoIso'),
+    )
+    process.analysisMuonsNoIsoCountZTau = cms.EDFilter("PATCandViewCountFilter",
+         minNumber = cms.uint32(1),
+         maxNumber = cms.uint32(999),
+         src = cms.InputTag('analysisMuonsNoIso'),
+    )
+    process.analysisMuonsIsoCount = cms.EDFilter("PATCandViewCountFilter",
+         minNumber = cms.uint32(2),
+         maxNumber = cms.uint32(999),
+         src = cms.InputTag('analysisMuonsIso'),
+    )
+    process.analysisMuonsIsoCountTauEff = cms.EDFilter("PATCandViewCountFilter",
+         minNumber = cms.uint32(1),
+         maxNumber = cms.uint32(999),
+         src = cms.InputTag('analysisMuonsIso'),
+    )
+    process.main_path *= process.analysisMuonsNoIso
+    process.main_path *= process.analysisMuonsNoIsoCount
+    #process.main_path *= process.analysisMuonsIso
+    #process.main_path *= process.analysisMuonsIsoCount
+    process.z_path *= process.analysisMuonsNoIso
+    #process.z_path *= process.analysisMuonsIso
+    process.z_path *= process.analysisMuonsNoIsoCountZ
+    process.z_tau_eff_path *= process.analysisMuonsNoIso
+    #process.z_tau_eff_path *= process.analysisMuonsIso
+    process.z_tau_eff_path *= process.analysisMuonsNoIsoCountZTau
+    process.z_tau_eff_muclean_path *= process.analysisMuonsNoIso
+    #process.z_tau_eff_muclean_path *= process.analysisMuonsIso
+    process.z_tau_eff_muclean_path *= process.analysisMuonsNoIsoCountZTau
+    
+    #############################
+    ### Second muon threshold ###
+    #############################
+    #process.secondMuon = cms.EDFilter('PATMuonSelector',
+    process.secondMuon = cms.EDFilter('MuonSelector',
+        src = cms.InputTag('analysisMuonsNoIso'),
+        cut = cms.string('pt > 3.0'),
+    )
+    process.secondMuonCount = cms.EDFilter("PATCandViewCountFilter",
+        minNumber = cms.uint32(2),
+        maxNumber = cms.uint32(999),
+        src = cms.InputTag('secondMuon'),
+    )
+    #process.main_path *= process.secondMuon
+    #process.main_path *= process.secondMuonCount
+    process.z_path *= process.secondMuon
+    process.z_path *= process.secondMuonCount
+    
+    
+    #########################
+    ### Trigger Threshold ###
+    #########################
+    #process.triggerMuon = cms.EDFilter('PATMuonSelector',
+    process.triggerMuon = cms.EDFilter('MuonSelector',
+        #src = cms.InputTag('secondMuon'),
+        src = cms.InputTag('analysisMuonsNoIso'),
+        #cut = cms.string('pt > 27.0'),
+        cut = cms.string('pt > 24.0'),
+    )
+    process.triggerMuonCount = cms.EDFilter("PATCandViewCountFilter",
+         minNumber = cms.uint32(1),
+         maxNumber = cms.uint32(999),
+         src = cms.InputTag('triggerMuon'),
+    )
+    process.main_path *= process.triggerMuon
+    process.main_path *= process.triggerMuonCount
+    process.z_path *= process.triggerMuon
+    process.z_path *= process.triggerMuonCount
+    process.z_tau_eff_path *= process.triggerMuon
+    process.z_tau_eff_path *= process.triggerMuonCount
+    process.z_tau_eff_muclean_path *= process.triggerMuon
+    process.z_tau_eff_muclean_path *= process.triggerMuonCount
+    
+    ############################
+    ### Require two OS muons ###
+    ############################
+    process.mumu = cms.EDProducer("CandViewShallowCloneCombiner",
+        decay = cms.string("{0}@+ {0}@-".format('slimmedMuons')),
+        #cut   = cms.string("deltaR(daughter(0).eta,daughter(0).phi,daughter(1).eta,daughter(1).phi)<1.5 && mass<30"),
+        cut   = cms.string("1<mass<60"),
+    )
+    process.mumuCount = cms.EDFilter("PATCandViewCountFilter",
+         minNumber = cms.uint32(1),
+         maxNumber = cms.uint32(999),
+         src = cms.InputTag('mumu'),
+    )
+    process.main_path *= process.mumu
+    process.main_path *= process.mumuCount
+    
+    process.mumuZ = cms.EDProducer("CandViewShallowCloneCombiner",
+        decay = cms.string("{0}@+ {0}@-".format('slimmedMuons')),
+        cut   = cms.string("60<mass<120"),
+    )
+    process.mumuZCount = cms.EDFilter("PATCandViewCountFilter",
+         minNumber = cms.uint32(1),
+         maxNumber = cms.uint32(999),
+         src = cms.InputTag('mumuZ'),
+    )
+    process.z_path *= process.mumuZ
+    process.z_path *= process.mumuZCount
+    
+    ########################
+    ### Tau requirements ###
+    ########################
+    # first step that requires the new collection
+    process.analysisTaus = cms.EDFilter('PATTauSelector',
+        src = cms.InputTag('slimmedTausMuonCleaned'),
+        cut = cms.string('pt > 8.0 && abs(eta)<2.3 && tauID(\'decayModeFinding\')> 0.5'),
+    )
+    process.analysisTausCount = cms.EDFilter("PATCandViewCountFilter",
+         minNumber = cms.uint32(1),
+         maxNumber = cms.uint32(999),
+         src = cms.InputTag('analysisTaus'),
+    )
+    process.analysisTausNoClean = cms.EDFilter('PATTauSelector',
+        src = cms.InputTag('slimmedTaus'),
+        cut = cms.string('pt > 8.0 && abs(eta)<2.3 && tauID(\'decayModeFinding\')> 0.5'),
+    )
+    process.analysisTausNoCleanCount = cms.EDFilter("PATCandViewCountFilter",
+         minNumber = cms.uint32(1),
+         maxNumber = cms.uint32(999),
+         src = cms.InputTag('analysisTausNoClean'),
+    )
+    process.main_path *= process.analysisTaus
+    process.main_path *= process.analysisTausCount
+    process.z_tau_eff_path *= process.analysisTausNoClean
+    process.z_tau_eff_path *= process.analysisTausNoCleanCount
+    process.z_tau_eff_muclean_path *= process.analysisTaus
+    process.z_tau_eff_muclean_path *= process.analysisTausCount
+    
+    ############################
+    ### Tau Eff requirements ###
+    ############################
+    process.mumuZTauEff = cms.EDProducer("CandViewShallowCloneCombiner",
+        decay = cms.string("{0} {1}".format('slimmedMuons','analysisTaus')),
+        checkCharge = cms.bool(False),
+        cut   = cms.string("30<mass<210 && deltaR(daughter(0).eta,daughter(0).phi,daughter(1).eta,daughter(1).phi)>0.5"),
+        #cut   = cms.string("30<mass<210"),
+    )
+    process.mumuZCountTauEff = cms.EDFilter("PATCandViewCountFilter",
+         minNumber = cms.uint32(1),
+         maxNumber = cms.uint32(999),
+         src = cms.InputTag('mumuZTauEff'),
+    )
+    process.mumuZTauEffNoClean = cms.EDProducer("CandViewShallowCloneCombiner",
+        decay = cms.string("{0} {1}".format('slimmedMuons','analysisTausNoClean')),
+        checkCharge = cms.bool(False),
+        cut   = cms.string("30<mass<210 && deltaR(daughter(0).eta,daughter(0).phi,daughter(1).eta,daughter(1).phi)>0.5"),
+        #cut   = cms.string("30<mass<210"),
+    )
+    process.mumuZCountTauEffNoClean = cms.EDFilter("PATCandViewCountFilter",
+         minNumber = cms.uint32(1),
+         maxNumber = cms.uint32(999),
+         src = cms.InputTag('mumuZTauEffNoClean'),
+    )
+    process.z_tau_eff_path *= process.mumuZTauEffNoClean
+    process.z_tau_eff_path *= process.mumuZCountTauEffNoClean
+    process.z_tau_eff_muclean_path *= process.mumuZTauEff
+    process.z_tau_eff_muclean_path *= process.mumuZCountTauEff
 
 #################
 ### Finish up ###
@@ -523,8 +533,8 @@ process.z_tau_eff_path *= process.mumuZCountTauEff
 # add to schedule
 process.schedule.append(process.main_path)
 process.schedule.append(process.z_path)
-process.schedule.append(process.z_alt_path)
 process.schedule.append(process.z_tau_eff_path)
+process.schedule.append(process.z_tau_eff_muclean_path)
 
 # lumi summary
 process.TFileService = cms.Service("TFileService",
@@ -556,22 +566,31 @@ if not options.isMC:
     ]
 
 # additional skims
-process.MINIAODoutputZSKIM = process.MINIAODoutput.clone(
-    SelectEvents = cms.untracked.PSet(
-        #SelectEvents = cms.vstring('z_path'),
-        SelectEvents = cms.vstring('z_path','z_alt_path'),
-    ),
-    fileName = cms.untracked.string(options.outputFile.split('.root')[0]+'_zskim.root'),
-)
-process.MINIAODoutputZSKIM_step = cms.EndPath(process.MINIAODoutputZSKIM)
-process.schedule.append(process.MINIAODoutputZSKIM_step)
+if not doMMMT:
+    if doMM:
+        process.MINIAODoutput.SelectEvents.SelectEvents = cms.vstring('z_path')
 
-process.MINIAODoutputZMUTAUSKIM = process.MINIAODoutput.clone(
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('z_tau_eff_path'),
-    ),
-    fileName = cms.untracked.string(options.outputFile.split('.root')[0]+'_zmutauskim.root'),
-)
-process.MINIAODoutputZMUTAUSKIM_step = cms.EndPath(process.MINIAODoutputZMUTAUSKIM)
-process.schedule.append(process.MINIAODoutputZMUTAUSKIM_step)
-
+    if doMT:
+        process.MINIAODoutput.SelectEvents.SelectEvents = cms.vstring('z_tau_eff_path','z_tau_eff_muclean_path')
+else:
+    if doMM:
+        process.MINIAODoutputZSKIM = process.MINIAODoutput.clone(
+            SelectEvents = cms.untracked.PSet(
+                #SelectEvents = cms.vstring('z_path'),
+                SelectEvents = cms.vstring('z_path'),
+            ),
+            fileName = cms.untracked.string(options.outputFile.split('.root')[0]+'_zskim.root'),
+        )
+        process.MINIAODoutputZSKIM_step = cms.EndPath(process.MINIAODoutputZSKIM)
+        process.schedule.append(process.MINIAODoutputZSKIM_step)
+    
+    if doMT:
+        process.MINIAODoutputZMUTAUSKIM = process.MINIAODoutput.clone(
+            SelectEvents = cms.untracked.PSet(
+                SelectEvents = cms.vstring('z_tau_eff_path','z_tau_eff_muclean_path'),
+            ),
+            fileName = cms.untracked.string(options.outputFile.split('.root')[0]+'_zmutauskim.root'),
+        )
+        process.MINIAODoutputZMUTAUSKIM_step = cms.EndPath(process.MINIAODoutputZMUTAUSKIM)
+        process.schedule.append(process.MINIAODoutputZMUTAUSKIM_step)
+        
