@@ -6,8 +6,8 @@ options = VarParsing('analysis')
 
 options.outputFile = 'mumutautau.root'
 #options.inputFiles = '/store/data/Run2016H/SingleMuon/AOD/PromptReco-v2/000/284/035/00000/5849226D-569F-E611-B874-02163E011EAC.root'
-options.inputFiles = '/store/mc/RunIISummer16DR80Premix/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext2-v1/60001/D04F22AE-3FF1-E611-BDB5-02163E019C78.root'
-#options.inputFiles = '/store/mc/RunIISummer16DR80Premix/SUSYGluGluToHToAA_AToMuMu_AToTauTau_M-15_TuneCUETP8M1_13TeV_madgraph_pythia8/AODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/120000/82114092-19BB-E611-926B-FA163E0D86FB.root'
+#options.inputFiles = '/store/mc/RunIISummer16DR80Premix/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/AODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext2-v1/60001/D04F22AE-3FF1-E611-BDB5-02163E019C78.root'
+options.inputFiles = '/store/mc/RunIISummer16DR80Premix/SUSYGluGluToHToAA_AToMuMu_AToTauTau_M-15_TuneCUETP8M1_13TeV_madgraph_pythia8/AODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/120000/82114092-19BB-E611-926B-FA163E0D86FB.root'
 options.maxEvents = -1
 options.register('skipEvents', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Events to skip")
 options.register('reportEvery', 100, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Report every")
@@ -21,9 +21,9 @@ options.register('runH', 1, VarParsing.multiplicity.singleton, VarParsing.varTyp
 
 # default to doFilters = True, otherwise, only filters on the trigger, everything else passes
 doFilters = True
-doMMMT = False
+doMMMT = True
 doMM = False
-doMT = True
+doMT = False
 
 options.parseArguments()
 
@@ -261,6 +261,7 @@ else:
 
 # boosted tau modification
 process.combinatoricRecoTausBoosted.minJetPt = cms.double(8.0)
+process.selectedPatTausBoosted.cut = cms.string("pt > 8. && tauID(\'decayModeFindingNewDMs\')> 0.5")
 process.ca8PFJetsCHSprunedForBoostedTaus.jetPtMin = cms.double(8.0)
 process.ca8PFJetsCHSprunedForBoostedTaus.subjetPtMin = cms.double(8.0)
 
@@ -543,12 +544,16 @@ process.TFileService = cms.Service("TFileService",
 
 process.lumiTree = cms.EDAnalyzer("LumiTree",
     genEventInfo = cms.InputTag("generator"),
+    lheEventProduct = cms.InputTag("externalLHEProducer"),
+    doGenWeights = cms.bool(True),
 )
 process.lumi_step = cms.Path(process.lumiTree)
 process.schedule.append(process.lumi_step)
 
 process.lumiSummary = cms.EDProducer("LumiSummaryProducer",
     genEventInfo = cms.InputTag("generator"),
+    lheEventProduct = cms.InputTag("externalLHEProducer"),
+    doGenWeights = cms.bool(True),
 )
 process.lumiSummary_step = cms.Path(process.lumiSummary)
 process.schedule.append(process.lumiSummary_step)
