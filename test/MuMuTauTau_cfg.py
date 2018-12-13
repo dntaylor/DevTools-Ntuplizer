@@ -20,7 +20,7 @@ options.register('numThreads', 4, VarParsing.multiplicity.singleton, VarParsing.
 options.register('runH', 1, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Make changes needed for Run2016H")
 
 # default to doFilters = True, otherwise, only filters on the trigger, everything else passes
-doFilters = True
+doFilters = False
 doMMMT = True
 doMM = False
 doMT = False
@@ -233,10 +233,12 @@ massSearchReplaceAnyInputTag(process.PATTauSequenceMuonCleaned,cms.InputTag('ak4
 process.slimmedTausMuonCleaned = process.slimmedTaus.clone(src = cms.InputTag('selectedPatTausMuonCleaned'))
 
 process.combinatoricRecoTausMuonCleaned.minJetPt = cms.double(8.0)
+process.recoTauAK4PFJets08RegionMuonCleaned.minJetPt = cms.double(8.0)
 process.selectedPatTausMuonCleaned.cut = cms.string("pt > 8. && tauID(\'decayModeFindingNewDMs\')> 0.5")
 
 # lower pt for nonclean
 process.combinatoricRecoTaus.minJetPt = cms.double(8.0)
+process.recoTauAK4PFJets08Region.minJetPt = cms.double(8.0)
 process.selectedPatTaus.cut = cms.string("pt > 8. && tauID(\'decayModeFindingNewDMs\')> 0.5")
 
 if options.isMC:
@@ -261,6 +263,7 @@ else:
 
 # boosted tau modification
 process.combinatoricRecoTausBoosted.minJetPt = cms.double(8.0)
+process.recoTauAK4PFJets08RegionBoosted.minJetPt = cms.double(8.0)
 process.selectedPatTausBoosted.cut = cms.string("pt > 8. && tauID(\'decayModeFindingNewDMs\')> 0.5")
 process.ca8PFJetsCHSprunedForBoostedTaus.jetPtMin = cms.double(8.0)
 process.ca8PFJetsCHSprunedForBoostedTaus.subjetPtMin = cms.double(8.0)
@@ -564,11 +567,8 @@ process.MINIAODoutput.outputCommands += [
     'keep *_slimmedTausMuonCleaned_*_*',
     #'keep *_slimmedJetsMuonCleaned_*_*', # can't keep without warnings, can be recreated later anyway
     'keep *_lumiSummary_*_*',
+    'drop *_ctppsLocalTrackLiteProducer_*_*', # Don't know what this is, but it prevents running in older releases
 ]
-if not options.isMC:
-    process.MINIAODoutput.outputCommands += [
-        'drop *_ctppsLocalTrackLiteProducer_*_*', # Don't know what this is, but it prevents running in older releases
-    ]
 
 # additional skims
 if not doMMMT:
