@@ -40,7 +40,7 @@ void CandidateCollectionFunction<T>::evaluate(const reco::CandidateView& candida
 }
 
 template<typename T>
-void JetConstituentCollectionFunction<T>::evaluate(const reco::CandidateView& candidates)
+void JetConstituentCollectionFunction<T>::evaluate(const edm::View<pat::Jet>& candidates)
 {
   values_.clear();
   try {
@@ -95,8 +95,8 @@ CandidateCollectionBranches::CandidateCollectionBranches(TTree * tree, std::stri
   }
 }
 
-JetCandidateCollectionBranches::JetCandidateCollectionBranches(TTree * tree, std::string collectionName, std::string constituentCollectionName_,  const edm::ParameterSet& iConfig, edm::ConsumesCollector cc):
-  collectionToken_(cc.consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("collection"))),
+JetCandidateCollectionBranches::JetCandidateCollectionBranches(TTree * tree, std::string collectionName, std::string constituentCollectionName,  const edm::ParameterSet& iConfig, edm::ConsumesCollector cc):
+  collectionToken_(cc.consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("collection"))),
   branches_(iConfig.getParameter<edm::ParameterSet>("branches")),
   constituentBranches_(iConfig.getParameter<edm::ParameterSet>("constituentBranches")),
   collectionName_(collectionName),
@@ -171,22 +171,22 @@ void CandidateCollectionBranches::fill(const edm::Event& iEvent)
 
 void JetCandidateCollectionBranches::fill(const edm::Event& iEvent)
 {
-  edm::Handle<reco::CandidateView> candidates;
+  edm::Handle<edm::View<pat::Jet> > candidates;
   iEvent.getByToken(collectionToken_, candidates);
 
   collectionCount_ = candidates->size();
 
   for ( auto& f : floatFunctions_ ) {
-    f->evaluate(*candidates);
+    f->evaluate((reco::CandidateView&)*candidates);
   }
   for ( auto& f : intFunctions_ ) {
-    f->evaluate(*candidates);
+    f->evaluate((reco::CandidateView&)*candidates);
   }
 
   // the constiuents
   constituentCollectionCount_.clear();
   for (auto it : *candidates ) {
-    constituentCollectionCount_.push_back(it->numberOfDaughters());
+    constituentCollectionCount_.push_back(it.numberOfDaughters());
   }
 
   for ( auto& f : constituentFloatFunctions_ ) {
