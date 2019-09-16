@@ -69,6 +69,7 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
 
     // collections
     std::vector<std::unique_ptr<CandidateCollectionBranches> > collectionBranches_;
+    std::vector<std::unique_ptr<JetCandidateCollectionBranches> > jetCollectionBranches_;
     std::vector<std::unique_ptr<VertexCollectionBranches> > vertexCollectionBranches_;
 };
 

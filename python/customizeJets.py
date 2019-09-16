@@ -62,6 +62,21 @@ def customizeJets(process,coll,srcLabel='jets',postfix='',**kwargs):
 
     path *= getattr(process,modName)
 
+    ###################
+    ### embed truth ###
+    ###################
+    module = cms.EDProducer(
+        "JetMCTruthEmbedder",
+        src = cms.InputTag(jSrc),
+        genSrc = cms.InputTag('prunedGenParticles'),
+        packedGenSrc = cms.InputTag('packedGenParticles'),
+    )
+    modName = 'jTruth{0}'.format(postfix)
+    setattr(process,modName,module)
+    jSrc = modName
+
+    path *= getattr(process,modName)
+
     #################
     ### embed rho ###
     #################

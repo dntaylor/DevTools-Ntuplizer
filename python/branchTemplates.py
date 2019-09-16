@@ -9,8 +9,43 @@ commonCandidates = cms.PSet(
     energy = cms.vstring('energy()','F'),
     charge = cms.vstring('charge()','F'),
     mass   = cms.vstring('mass()','F'),
-    vz     = cms.vstring('vz()','F'),
     pdgId  = cms.vstring('pdgId()','I'),
+)
+
+constituentBranches = commonCandidates.clone(
+    px                      = cms.vstring('px','F'),
+    py                      = cms.vstring('py','F'),
+    pz                      = cms.vstring('pz','F'),
+    ptTrk                   = cms.vstring('ptTrk','F'),
+    etaAtVtx                = cms.vstring('etaAtVtx','F'),
+    phiAtVtx                = cms.vstring('phiAtVtx','F'),
+    dxy                     = cms.vstring('dxy','F'),
+    dxyError                = cms.vstring('? hasTrackDetails ? dxyError : -1','F'),
+    dz                      = cms.vstring('dz','F'),
+    dzError                 = cms.vstring('? hasTrackDetails ? dzError : -1','F'),
+    hcalFration             = cms.vstring('hcalFraction','F'),
+    caloFration             = cms.vstring('caloFraction','F'),
+    isIsolatedChargedHadron = cms.vstring('isIsolatedChargedHadron','I'),
+    isConvertedPhoton       = cms.vstring('isConvertedPhoton','I'),
+    isPhoton                = cms.vstring('isPhoton','I'),
+    isElectron              = cms.vstring('isElectron','I'),
+    isMuon                  = cms.vstring('isMuon','I'),
+    isGlobalMuon            = cms.vstring('isGlobalMuon','I'),
+    isStandAloneMuon        = cms.vstring('isStandAloneMuon','I'),
+    isTrackerMuon           = cms.vstring('isTrackerMuon','I'),
+    numberOfHits            = cms.vstring('numberOfHits','I'),
+    numberOfPixelHits       = cms.vstring('numberOfPixelHits','I'),
+    pixelLayersWithMeasurements   = cms.vstring('pixelLayersWithMeasurement','I'),
+    stripLayersWithMeasurements   = cms.vstring('stripLayersWithMeasurement','I'),
+    trackerLayersWithMeasurements = cms.vstring('trackerLayersWithMeasurement','I'),
+    puppiWeight             = cms.vstring('puppiWeight','F'),
+    puppiWeightNoLep        = cms.vstring('puppiWeightNoLep','F'),
+    trackHighPurity         = cms.vstring('trackHighPurity','I'),
+    vertexNdof              = cms.vstring('vertexNdof','I'),
+    vertexNormalizedChi2    = cms.vstring('vertexNormalizedChi2','F'),
+    vx                      = cms.vstring('vx','F'),
+    vy                      = cms.vstring('vy','F'),
+    vz                      = cms.vstring('vz','F'),
 )
 
 commonGenCandidates = commonCandidates.clone(
@@ -549,14 +584,30 @@ photonBranches = commonPatCandidates.clone(
 # jets
 jetBranches = commonJetCandidates.clone(
     # btagging
-    pfCombinedInclusiveSecondaryVertexV2BJetTags = cms.vstring('bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")','F'),
-    pfCombinedMVAV2BJetTags                      = cms.vstring('bDiscriminator("pfCombinedMVAV2BJetTags")','F'),
-    passCSVv2L                                   = cms.vstring('? bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")>0.5426 ? 1 : 0','I'),
-    passCSVv2M                                   = cms.vstring('? bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")>0.8484 ? 1 : 0','I'),
-    passCSVv2T                                   = cms.vstring('? bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")>0.9535 ? 1 : 0','I'),
-    passCMVAv2L                                  = cms.vstring('? bDiscriminator("pfCombinedMVAV2BJetTags")>-0.5884 ? 1 : 0','I'),
-    passCMVAv2M                                  = cms.vstring('? bDiscriminator("pfCombinedMVAV2BJetTags")>0.4432 ? 1 : 0','I'),
-    passCMVAv2T                                  = cms.vstring('? bDiscriminator("pfCombinedMVAV2BJetTags")>0.9432 ? 1 : 0','I'),
+    #pfCombinedInclusiveSecondaryVertexV2BJetTags = cms.vstring('bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")','F'),
+    #pfCombinedMVAV2BJetTags                      = cms.vstring('bDiscriminator("pfCombinedMVAV2BJetTags")','F'),
+    #passCSVv2L                                   = cms.vstring('? bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")>0.5426 ? 1 : 0','I'),
+    #passCSVv2M                                   = cms.vstring('? bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")>0.8484 ? 1 : 0','I'),
+    #passCSVv2T                                   = cms.vstring('? bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")>0.9535 ? 1 : 0','I'),
+    #passCMVAv2L                                  = cms.vstring('? bDiscriminator("pfCombinedMVAV2BJetTags")>-0.5884 ? 1 : 0','I'),
+    #passCMVAv2M                                  = cms.vstring('? bDiscriminator("pfCombinedMVAV2BJetTags")>0.4432 ? 1 : 0','I'),
+    #passCMVAv2T                                  = cms.vstring('? bDiscriminator("pfCombinedMVAV2BJetTags")>0.9432 ? 1 : 0','I'),
+    pfJetBProbabilityBJetTags                             = cms.vstring('bDiscriminator("pfJetBProbabilityBJetTags")','F'), 
+    pfJetProbabilityBJetTags                              = cms.vstring('bDiscriminator("pfJetProbabilityBJetTags")','F'), 
+    pfTrackCountingHighEffBJetTags                        = cms.vstring('bDiscriminator("pfTrackCountingHighEffBJetTags")','F'), 
+    pfSimpleSecondaryVertexHighEffBJetTags                = cms.vstring('bDiscriminator("pfSimpleSecondaryVertexHighEffBJetTags")','F'), 
+    pfSimpleInclusiveSecondaryVertexHighEffBJetTags       = cms.vstring('bDiscriminator("pfSimpleInclusiveSecondaryVertexHighEffBJetTags")','F'), 
+    pfCombinedSecondaryVertexV2BJetTags                   = cms.vstring('bDiscriminator("pfCombinedSecondaryVertexV2BJetTags")','F'), 
+    pfCombinedInclusiveSecondaryVertexV2BJetTags          = cms.vstring('bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")','F'), 
+    softPFMuonBJetTags                                    = cms.vstring('bDiscriminator("softPFMuonBJetTags")','F'), 
+    softPFElectronBJetTags                                = cms.vstring('bDiscriminator("softPFElectronBJetTags")','F'), 
+    pfCombinedMVAV2BJetTags                               = cms.vstring('bDiscriminator("pfCombinedMVAV2BJetTags")','F'), 
+    pfCombinedCvsLJetTags                                 = cms.vstring('bDiscriminator("pfCombinedCvsLJetTags")','F'), 
+    pfCombinedCvsBJetTags                                 = cms.vstring('bDiscriminator("pfCombinedCvsBJetTags")','F'), 
+    pfDeepCSVJetTags_probb                                = cms.vstring('bDiscriminator("pfDeepCSVJetTags:probb")','F'), 
+    pfDeepCSVJetTags_probc                                = cms.vstring('bDiscriminator("pfDeepCSVJetTags:probc")','F'), 
+    pfDeepCSVJetTags_probudsg                             = cms.vstring('bDiscriminator("pfDeepCSVJetTags:probudsg")','F'), 
+    pfDeepCSVJetTags_probbb                               = cms.vstring('bDiscriminator("pfDeepCSVJetTags:probbb")','F'),
     # flavor
     partonFlavour                                = cms.vstring('partonFlavour','I'),
     # id variables
@@ -574,12 +625,32 @@ jetBranches = commonJetCandidates.clone(
     puID                                         = cms.vstring('userInt("puID")','I'),
     #pileupJetIdDiscriminant                      = cms.vstring('userFloat("pileupJetIdUpdated:fullDiscriminant")','F'),
     pileupJetIdDiscriminant                      = cms.vstring('userFloat("pileupJetId:fullDiscriminant")','F'),
+    caloJetMap_pt                                = cms.vstring('userFloat("caloJetMap:pt")','F'),
+    caloJetMap_emEnergyFraction                  = cms.vstring('userFloat("caloJetMap:emEnergyFraction")','F'),
     # energy shifts
     pt_jetEnUp                                   = cms.vstring('? hasUserCand("JetEnUp") ? userCand("JetEnUp").pt() : 0','F'),
     energy_jetEnUp                               = cms.vstring('? hasUserCand("JetEnUp") ? userCand("JetEnUp").energy() : 0','F'),
     pt_jetEnDown                                 = cms.vstring('? hasUserCand("JetEnDown") ? userCand("JetEnDown").pt() : 0','F'),
     energy_jetEnDown                             = cms.vstring('? hasUserCand("JetEnDown") ? userCand("JetEnDown").energy() : 0 ','F'),
 )
+
+jetTruths = [
+    'isTau','isTauTau',
+    'isB','isBB',
+    'isC','isCC',
+    'isG','isS','isUD',
+    #'isGPhys','isSPhys','isUDPhys',
+]
+tauModes = ['TauE','TauM','TauH']
+if False: tauModes += ['TauDM0','TauDM1','TauDM10']
+for i, tmi in enumerate(tauModes):
+    jetTruths += ['is{}'.format(tmi)]
+    for j, tmj in enumerate(tauModes):
+        if j<i: continue
+        jetTruths += ['is{}{}'.format(tmi,tmj)]
+        
+for truth in jetTruths:
+    setattr(jetBranches,truth,cms.vstring('userInt("{}")'.format(truth),'I'))
 
 # mets
 metBranches = commonMet.clone(

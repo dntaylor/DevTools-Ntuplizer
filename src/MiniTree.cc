@@ -42,7 +42,13 @@ MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     // add collections
     auto collectionNames_ = collections_.getParameterNames();
     for (auto coll : collectionNames_) {
-        collectionBranches_.emplace_back(new CandidateCollectionBranches(tree_, coll, collections_.getParameter<edm::ParameterSet>(coll), consumesCollector()));
+        edm::ParameterSet pset = collections_.getParameter<edm::ParameterSet>(coll);
+        if (pset.exists("constituentBranches")) {
+            jetCollectionBranches_.emplace_back(new JetCandidateCollectionBranches(tree_, coll, "constituents", collections_.getParameter<edm::ParameterSet>(coll), consumesCollector()));
+        }
+        else {
+            collectionBranches_.emplace_back(new CandidateCollectionBranches(tree_, coll, collections_.getParameter<edm::ParameterSet>(coll), consumesCollector()));
+        }
     }
 }
 
@@ -81,9 +87,17 @@ void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
         coll->fill(iEvent);
     }
 
+    for ( auto& coll : jetCollectionBranches_ ) {
+        coll->fill(iEvent);
+    }
+
     // decide if we store it
     bool keep = false;
     for ( auto& coll : collectionBranches_ ) {
+        keep = keep || coll->keep();
+    }
+
+    for ( auto& coll : jetCollectionBranches_ ) {
         keep = keep || coll->keep();
     }
 
