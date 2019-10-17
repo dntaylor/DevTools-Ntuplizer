@@ -36,6 +36,12 @@ MuonTree::MuonTree(const edm::ParameterSet &iConfig) :
     tree_->Branch("muon_PFIsoTight",              &muon_PFIsoTight_);
     tree_->Branch("muon_SoftCutBasedId",          &muon_SoftCutBasedId_);
 
+    tree_->Branch("muon_innerTrack_pt",          &muon_innerTrack_pt_);
+    tree_->Branch("muon_innerTrack_p",           &muon_innerTrack_p_);
+    tree_->Branch("muon_innerTrack_eta",         &muon_innerTrack_eta_);
+    tree_->Branch("muon_innerTrack_phi",         &muon_innerTrack_phi_);
+    tree_->Branch("muon_innerTrack_qoverp",      &muon_innerTrack_qoverp_);
+    tree_->Branch("muon_innerTrack_qoverpError", &muon_innerTrack_qoverpError_);
     tree_->Branch("muon_innerTrack_validFraction",                            &muon_innerTrack_validFraction_);
     tree_->Branch("muon_innerTrack_highPurity",                               &muon_innerTrack_highPurity_);
     tree_->Branch("muon_innerTrack_hitPattern_trackerLayersWithMeasurement",  &muon_innerTrack_hitPattern_trackerLayersWithMeasurement_);
@@ -119,6 +125,12 @@ void MuonTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     muon_PFIsoTight_.clear();
     muon_SoftCutBasedId_.clear();
 
+    muon_innerTrack_pt_.clear();
+    muon_innerTrack_p_.clear();
+    muon_innerTrack_eta_.clear();
+    muon_innerTrack_phi_.clear();
+    muon_innerTrack_qoverp_.clear();
+    muon_innerTrack_qoverpError_.clear();
     muon_innerTrack_validFraction_.clear();
     muon_innerTrack_highPurity_.clear();
     muon_innerTrack_hitPattern_trackerLayersWithMeasurement_.clear();
@@ -186,15 +198,27 @@ void MuonTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
         muon_SoftCutBasedId_.push_back(m.passed(reco::Muon::SoftCutBasedId));
 
         if (m.innerTrack().isNonnull()) {
+            muon_innerTrack_pt_.push_back(m.innerTrack()->pt());
+            muon_innerTrack_p_.push_back(m.innerTrack()->p());
+            muon_innerTrack_eta_.push_back(m.innerTrack()->eta());
+            muon_innerTrack_phi_.push_back(m.innerTrack()->phi());
+            muon_innerTrack_qoverp_.push_back(m.innerTrack()->qoverp());
+            muon_innerTrack_qoverpError_.push_back(m.innerTrack()->qoverpError());
             muon_innerTrack_validFraction_.push_back(m.innerTrack()->validFraction());
             muon_innerTrack_highPurity_.push_back(m.innerTrack()->quality(reco::TrackBase::highPurity));
             muon_innerTrack_hitPattern_trackerLayersWithMeasurement_.push_back(m.innerTrack()->hitPattern().trackerLayersWithMeasurement());
             muon_innerTrack_hitPattern_pixelLayersWithMeasurement_.push_back(m.innerTrack()->hitPattern().pixelLayersWithMeasurement());
         } else {
-            muon_innerTrack_validFraction_.push_back(-1);
-            muon_innerTrack_highPurity_.push_back(-1);
-            muon_innerTrack_hitPattern_trackerLayersWithMeasurement_.push_back(-1);
-            muon_innerTrack_hitPattern_pixelLayersWithMeasurement_.push_back(-1);
+            muon_innerTrack_pt_.push_back(0);
+            muon_innerTrack_p_.push_back(0);
+            muon_innerTrack_eta_.push_back(0);
+            muon_innerTrack_phi_.push_back(0);
+            muon_innerTrack_qoverp_.push_back(0);
+            muon_innerTrack_qoverpError_.push_back(0);
+            muon_innerTrack_validFraction_.push_back(0);
+            muon_innerTrack_highPurity_.push_back(0);
+            muon_innerTrack_hitPattern_trackerLayersWithMeasurement_.push_back(0);
+            muon_innerTrack_hitPattern_pixelLayersWithMeasurement_.push_back(0);
         }
 
         muon_caloCompatibility_.push_back(m.caloCompatibility());

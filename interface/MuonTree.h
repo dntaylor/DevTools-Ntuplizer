@@ -68,6 +68,12 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     std::vector<int> muon_SoftCutBasedId_;
 
     // inner track
+    std::vector<float> muon_innerTrack_pt_;
+    std::vector<float> muon_innerTrack_p_;
+    std::vector<float> muon_innerTrack_eta_;
+    std::vector<float> muon_innerTrack_phi_;
+    std::vector<float> muon_innerTrack_qoverp_;
+    std::vector<float> muon_innerTrack_qoverpError_;
     std::vector<float> muon_innerTrack_validFraction_;
     std::vector<int> muon_innerTrack_highPurity_;
     std::vector<int> muon_innerTrack_hitPattern_trackerLayersWithMeasurement_;
