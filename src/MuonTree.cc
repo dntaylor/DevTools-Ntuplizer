@@ -1,5 +1,10 @@
 #include "DevTools/Ntuplizer/interface/MuonTree.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
+
 MuonTree::MuonTree(const edm::ParameterSet &iConfig) :
     muonsToken_(consumes<edm::View<reco::Muon>>(iConfig.getParameter<edm::InputTag>("muonSrc"))),
     genParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genSrc"))),
@@ -61,6 +66,11 @@ MuonTree::MuonTree(const edm::ParameterSet &iConfig) :
     tree_->Branch("muon_calEnergy_hoS9",      &muon_calEnergy_hoS9_);
     tree_->Branch("muon_calEnergy_tower",     &muon_calEnergy_tower_);
     tree_->Branch("muon_calEnergy_towerS9",   &muon_calEnergy_towerS9_);
+    tree_->Branch("muon_calEnergy_ecal_ieta", &muon_calEnergy_ecal_ieta_);
+    tree_->Branch("muon_calEnergy_ecal_iphi", &muon_calEnergy_ecal_iphi_);
+    tree_->Branch("muon_calEnergy_hcal_ieta", &muon_calEnergy_hcal_ieta_);
+    tree_->Branch("muon_calEnergy_hcal_iphi", &muon_calEnergy_hcal_iphi_);
+    tree_->Branch("muon_calEnergy_hcal_depth",&muon_calEnergy_hcal_depth_);
     tree_->Branch("muon_calEnergy_crossedHadRecHits_ieta",   &muon_calEnergy_crossedHadRecHits_ieta_);
     tree_->Branch("muon_calEnergy_crossedHadRecHits_iphi",   &muon_calEnergy_crossedHadRecHits_iphi_);
     tree_->Branch("muon_calEnergy_crossedHadRecHits_depth",  &muon_calEnergy_crossedHadRecHits_depth_);
@@ -150,6 +160,11 @@ void MuonTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     muon_calEnergy_hoS9_.clear();
     muon_calEnergy_tower_.clear();
     muon_calEnergy_towerS9_.clear();
+    muon_calEnergy_ecal_ieta_.clear();
+    muon_calEnergy_ecal_iphi_.clear();
+    muon_calEnergy_hcal_ieta_.clear();
+    muon_calEnergy_hcal_iphi_.clear();
+    muon_calEnergy_hcal_depth_.clear();
     muon_calEnergy_crossedHadRecHits_ieta_.clear();
     muon_calEnergy_crossedHadRecHits_iphi_.clear();
     muon_calEnergy_crossedHadRecHits_depth_.clear();
@@ -235,6 +250,22 @@ void MuonTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
         muon_calEnergy_hoS9_.push_back(m.calEnergy().hoS9);
         muon_calEnergy_tower_.push_back(m.calEnergy().tower);
         muon_calEnergy_towerS9_.push_back(m.calEnergy().towerS9);
+        if (m.calEnergy().ecal_id.subdetId() == EBDetId::Subdet) {
+            muon_calEnergy_ecal_ieta_.push_back(((EBDetId)m.calEnergy().ecal_id).ieta());
+            muon_calEnergy_ecal_iphi_.push_back(((EBDetId)m.calEnergy().ecal_id).iphi());
+        } else if (m.calEnergy().ecal_id.subdetId() == EEDetId::Subdet) {
+            muon_calEnergy_ecal_ieta_.push_back(((EEDetId)m.calEnergy().ecal_id).ix());
+            muon_calEnergy_ecal_iphi_.push_back(((EEDetId)m.calEnergy().ecal_id).iy());
+        } else if (m.calEnergy().ecal_id.subdetId() == ESDetId::Subdet) {
+            muon_calEnergy_ecal_ieta_.push_back(((ESDetId)m.calEnergy().ecal_id).six());
+            muon_calEnergy_ecal_iphi_.push_back(((ESDetId)m.calEnergy().ecal_id).siy());
+        } else {
+            muon_calEnergy_ecal_ieta_.push_back(0);
+            muon_calEnergy_ecal_iphi_.push_back(0);
+        }
+        muon_calEnergy_hcal_ieta_.push_back( ((HcalDetId)m.calEnergy().hcal_id).ieta());
+        muon_calEnergy_hcal_iphi_.push_back( ((HcalDetId)m.calEnergy().hcal_id).iphi());
+        muon_calEnergy_hcal_depth_.push_back(((HcalDetId)m.calEnergy().hcal_id).depth());
         std::vector<int> v_ieta;
         std::vector<int> v_iphi;
         std::vector<int> v_depth;

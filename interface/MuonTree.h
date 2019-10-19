@@ -94,6 +94,11 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     std::vector<float> muon_calEnergy_hoS9_;
     std::vector<float> muon_calEnergy_tower_;
     std::vector<float> muon_calEnergy_towerS9_;
+    std::vector<int> muon_calEnergy_ecal_ieta_;
+    std::vector<int> muon_calEnergy_ecal_iphi_;
+    std::vector<int> muon_calEnergy_hcal_ieta_;
+    std::vector<int> muon_calEnergy_hcal_iphi_;
+    std::vector<int> muon_calEnergy_hcal_depth_;
     std::vector<std::vector<int> > muon_calEnergy_crossedHadRecHits_ieta_;
     std::vector<std::vector<int> > muon_calEnergy_crossedHadRecHits_iphi_;
     std::vector<std::vector<int> > muon_calEnergy_crossedHadRecHits_depth_;
