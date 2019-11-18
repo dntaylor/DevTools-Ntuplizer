@@ -9,8 +9,12 @@ MuonTree::MuonTree(const edm::ParameterSet &iConfig) :
     muonsToken_(consumes<edm::View<reco::Muon>>(iConfig.getParameter<edm::InputTag>("muonSrc"))),
     genParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genSrc"))),
     verticesToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
-    simInfo_(consumes<edm::ValueMap<reco::MuonSimInfo>>(iConfig.getParameter<edm::InputTag>("muonSimInfo")))
+    simInfo_(consumes<edm::ValueMap<reco::MuonSimInfo>>(iConfig.getParameter<edm::InputTag>("muonSimInfo"))),
+    muonAssociation_(iConfig.getParameter<edm::ParameterSet>("muonAssociation"))
 {
+
+    caloMuonRun3v1Token_ = consumes<edm::ValueMap<float> >(muonAssociation_.getParameter<edm::InputTag>("caloMuonRun3v1"));
+
     // Declare use of TFileService
     usesResource("TFileService");
 
@@ -44,6 +48,8 @@ MuonTree::MuonTree(const edm::ParameterSet &iConfig) :
     tree_->Branch("muon_PFIsoTight",              &muon_PFIsoTight_);
     tree_->Branch("muon_SoftCutBasedId",          &muon_SoftCutBasedId_);
 
+    tree_->Branch("muon_caloMuonRun3v1",          &muon_caloMuonRun3v1_);
+
     tree_->Branch("muon_isolationR03_nTracks",   &muon_isolationR03_nTracks_);
     tree_->Branch("muon_isolationR03_sumPt",     &muon_isolationR03_sumPt_);
 
@@ -58,7 +64,7 @@ MuonTree::MuonTree(const edm::ParameterSet &iConfig) :
     tree_->Branch("muon_innerTrack_hitPattern_trackerLayersWithMeasurement",  &muon_innerTrack_hitPattern_trackerLayersWithMeasurement_);
     tree_->Branch("muon_innerTrack_hitPattern_pixelLayersWithMeasurement",    &muon_innerTrack_hitPattern_pixelLayersWithMeasurement_);
 
-    tree_->Branch("muon_caloCompatibility", &muon_caloCompatibility_);
+    tree_->Branch("muon_caloCompatibility",   &muon_caloCompatibility_);
     tree_->Branch("muon_calEnergy_ecal_time", &muon_calEnergy_ecal_time_);
     tree_->Branch("muon_calEnergy_em",        &muon_calEnergy_em_);
     tree_->Branch("muon_calEnergy_emMax",     &muon_calEnergy_emMax_);
@@ -122,6 +128,9 @@ void MuonTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     edm::Handle<edm::ValueMap<reco::MuonSimInfo>> simInfo;
     bool simInfoIsAvailable = iEvent.getByToken(simInfo_, simInfo);
 
+    edm::Handle<edm::ValueMap<float> > caloMuonRun3v1;
+    iEvent.getByToken(caloMuonRun3v1Token_, caloMuonRun3v1);
+
     num_vertices_ = vertices->size();
 
     unsigned int idx = 0;
@@ -146,6 +155,9 @@ void MuonTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
         muon_PFIsoLoose_ = m.passed(reco::Muon::PFIsoLoose);
         muon_PFIsoTight_ = m.passed(reco::Muon::PFIsoTight);
         muon_SoftCutBasedId_ = m.passed(reco::Muon::SoftCutBasedId);
+
+        edm::Ref<edm::View<reco::Muon> > mRef(muons,idx);
+        muon_caloMuonRun3v1_ = (*caloMuonRun3v1)[mRef];
 
         muon_isolationR03_nTracks_ = m.isolationR03().nTracks;
         muon_isolationR03_sumPt_ = m.isolationR03().sumPt;

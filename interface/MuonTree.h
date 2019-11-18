@@ -26,6 +26,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include "DataFormats/Common/interface/ValueMap.h"
 
 class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   public:
@@ -47,6 +48,10 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
     edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
     edm::EDGetTokenT<edm::ValueMap<reco::MuonSimInfo>> simInfo_;
+    edm::EDGetTokenT<edm::ValueMap<float>> caloMuonRun3v1Token_;
+
+    // configuration
+    edm::ParameterSet muonAssociation_;
 
     // branches
     
@@ -75,6 +80,9 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     int muon_PFIsoLoose_;
     int muon_PFIsoTight_;
     int muon_SoftCutBasedId_;
+
+    // value maps
+    float muon_caloMuonRun3v1_;
 
     // isolation
     int muon_isolationR03_nTracks_;
