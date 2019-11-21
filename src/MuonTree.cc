@@ -14,6 +14,7 @@ MuonTree::MuonTree(const edm::ParameterSet &iConfig) :
 {
 
     caloMuonRun3v1Token_ = consumes<edm::ValueMap<float> >(muonAssociation_.getParameter<edm::InputTag>("caloMuonRun3v1"));
+    caloMuonRun3v2Token_ = consumes<edm::ValueMap<float> >(muonAssociation_.getParameter<edm::InputTag>("caloMuonRun3v2"));
 
     // Declare use of TFileService
     usesResource("TFileService");
@@ -49,6 +50,7 @@ MuonTree::MuonTree(const edm::ParameterSet &iConfig) :
     tree_->Branch("muon_SoftCutBasedId",          &muon_SoftCutBasedId_);
 
     tree_->Branch("muon_caloMuonRun3v1",          &muon_caloMuonRun3v1_);
+    tree_->Branch("muon_caloMuonRun3v2",          &muon_caloMuonRun3v2_);
 
     tree_->Branch("muon_isolationR03_nTracks",   &muon_isolationR03_nTracks_);
     tree_->Branch("muon_isolationR03_sumPt",     &muon_isolationR03_sumPt_);
@@ -131,105 +133,197 @@ void MuonTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     edm::Handle<edm::ValueMap<float> > caloMuonRun3v1;
     iEvent.getByToken(caloMuonRun3v1Token_, caloMuonRun3v1);
 
+    edm::Handle<edm::ValueMap<float> > caloMuonRun3v2;
+    iEvent.getByToken(caloMuonRun3v2Token_, caloMuonRun3v2);
+
+    muon_pt_.clear();
+    muon_p_.clear();
+    muon_eta_.clear();
+    muon_phi_.clear();
+    muon_energy_.clear();
+    muon_mass_.clear();
+    muon_charge_.clear();
+
+    muon_isPFMuon_.clear();
+    muon_isTrackerMuon_.clear();
+    muon_isGlobalMuon_.clear();
+    muon_isStandAloneMuon_.clear();
+    muon_isCaloMuon_.clear();
+    muon_CutBasedIdLoose_.clear();
+    muon_CutBasedIdMedium_.clear();
+    muon_CutBasedIdMediumPrompt_.clear();
+    muon_CutBasedIdTight_.clear();
+    muon_PFIsoLoose_.clear();
+    muon_PFIsoTight_.clear();
+    muon_SoftCutBasedId_.clear();
+
+    muon_caloMuonRun3v1_.clear();
+    muon_caloMuonRun3v2_.clear();
+
+    muon_isolationR03_nTracks_.clear();
+    muon_isolationR03_sumPt_.clear();
+
+    muon_innerTrack_pt_.clear();
+    muon_innerTrack_p_.clear();
+    muon_innerTrack_eta_.clear();
+    muon_innerTrack_phi_.clear();
+    muon_innerTrack_qoverp_.clear();
+    muon_innerTrack_qoverpError_.clear();
+    muon_innerTrack_validFraction_.clear();
+    muon_innerTrack_highPurity_.clear();
+    muon_innerTrack_hitPattern_trackerLayersWithMeasurement_.clear();
+    muon_innerTrack_hitPattern_pixelLayersWithMeasurement_.clear();
+
+    muon_caloCompatibility_.clear();
+    muon_calEnergy_ecal_time_.clear();
+    muon_calEnergy_em_.clear();
+    muon_calEnergy_emMax_.clear();
+    muon_calEnergy_emS25_.clear();
+    muon_calEnergy_emS9_.clear();
+    muon_calEnergy_had_.clear();
+    muon_calEnergy_hadMax_.clear();
+    muon_calEnergy_hadS9_.clear();
+    muon_calEnergy_hcal_time_.clear();
+    muon_calEnergy_ho_.clear();
+    muon_calEnergy_hoS9_.clear();
+    muon_calEnergy_tower_.clear();
+    muon_calEnergy_towerS9_.clear();
+    muon_calEnergy_ecal_ieta_.clear();
+    muon_calEnergy_ecal_iphi_.clear();
+    muon_calEnergy_hcal_ieta_.clear();
+    muon_calEnergy_hcal_iphi_.clear();
+    muon_calEnergy_hcal_depth_.clear();
+    muon_calEnergy_crossedHadRecHits_ieta_.clear();
+    muon_calEnergy_crossedHadRecHits_iphi_.clear();
+    muon_calEnergy_crossedHadRecHits_depth_.clear();
+    muon_calEnergy_crossedHadRecHits_energy_.clear();
+    muon_calEnergy_crossedHadRecHits_time_.clear();
+    muon_calEnergy_crossedHadRecHits_chi2_.clear();
+
+    muon_gen_matches_muon_.clear();
+    muon_gen_matches_pion_.clear();
+    muon_gen_deltaR_.clear();
+    muon_gen_pt_.clear();
+    muon_gen_eta_.clear();
+    muon_gen_phi_.clear();
+    muon_gen_mass_.clear();
+
+    muon_gen_sim_primaryClass_.clear();
+    muon_gen_sim_extendedClass_.clear();
+    muon_gen_sim_flavour_.clear();
+    muon_gen_sim_pdgId_.clear();
+    muon_gen_sim_pt_.clear();
+    muon_gen_sim_eta_.clear();
+    muon_gen_sim_phi_.clear();
+    muon_gen_sim_mass_.clear();
+    muon_gen_sim_tpAssoQuality_.clear();
+
     num_vertices_ = vertices->size();
 
     unsigned int idx = 0;
     for (const auto m: *muons) {
-        muon_pt_ = m.pt();
-        muon_p_ = m.p();
-        muon_eta_ = m.eta();
-        muon_phi_ = m.phi();
-        muon_energy_ = m.energy();
-        muon_mass_ = m.mass();
-        muon_charge_ = m.charge();
+        muon_pt_.push_back(m.pt());
+        muon_p_.push_back(m.p());
+        muon_eta_.push_back(m.eta());
+        muon_phi_.push_back(m.phi());
+        muon_energy_.push_back(m.energy());
+        muon_mass_.push_back(m.mass());
+        muon_charge_.push_back(m.charge());
 
-        muon_isPFMuon_ = m.isPFMuon();
-        muon_isTrackerMuon_ = m.isTrackerMuon();
-        muon_isGlobalMuon_ = m.isGlobalMuon();
-        muon_isStandAloneMuon_ = m.isStandAloneMuon();
-        muon_isCaloMuon_ = m.isCaloMuon();
-        muon_CutBasedIdLoose_ = m.passed(reco::Muon::CutBasedIdLoose);
-        muon_CutBasedIdMedium_ = m.passed(reco::Muon::CutBasedIdMedium);
-        muon_CutBasedIdMediumPrompt_ = m.passed(reco::Muon::CutBasedIdMediumPrompt);
-        muon_CutBasedIdTight_ = m.passed(reco::Muon::CutBasedIdTight);
-        muon_PFIsoLoose_ = m.passed(reco::Muon::PFIsoLoose);
-        muon_PFIsoTight_ = m.passed(reco::Muon::PFIsoTight);
-        muon_SoftCutBasedId_ = m.passed(reco::Muon::SoftCutBasedId);
+        muon_isPFMuon_.push_back(m.isPFMuon());
+        muon_isTrackerMuon_.push_back(m.isTrackerMuon());
+        muon_isGlobalMuon_.push_back(m.isGlobalMuon());
+        muon_isStandAloneMuon_.push_back(m.isStandAloneMuon());
+        muon_isCaloMuon_.push_back(m.isCaloMuon());
+        muon_CutBasedIdLoose_.push_back(m.passed(reco::Muon::CutBasedIdLoose));
+        muon_CutBasedIdMedium_.push_back(m.passed(reco::Muon::CutBasedIdMedium));
+        muon_CutBasedIdMediumPrompt_.push_back(m.passed(reco::Muon::CutBasedIdMediumPrompt));
+        muon_CutBasedIdTight_.push_back(m.passed(reco::Muon::CutBasedIdTight));
+        muon_PFIsoLoose_.push_back(m.passed(reco::Muon::PFIsoLoose));
+        muon_PFIsoTight_.push_back(m.passed(reco::Muon::PFIsoTight));
+        muon_SoftCutBasedId_.push_back(m.passed(reco::Muon::SoftCutBasedId));
 
         edm::Ref<edm::View<reco::Muon> > mRef(muons,idx);
-        muon_caloMuonRun3v1_ = (*caloMuonRun3v1)[mRef];
+        muon_caloMuonRun3v1_.push_back((*caloMuonRun3v1)[mRef]);
+        muon_caloMuonRun3v2_.push_back((*caloMuonRun3v2)[mRef]);
 
-        muon_isolationR03_nTracks_ = m.isolationR03().nTracks;
-        muon_isolationR03_sumPt_ = m.isolationR03().sumPt;
+        muon_isolationR03_nTracks_.push_back(m.isolationR03().nTracks);
+        muon_isolationR03_sumPt_.push_back(m.isolationR03().sumPt);
 
         if (m.innerTrack().isNonnull()) {
-            muon_innerTrack_pt_ = m.innerTrack()->pt();
-            muon_innerTrack_p_ = m.innerTrack()->p();
-            muon_innerTrack_eta_ = m.innerTrack()->eta();
-            muon_innerTrack_phi_ = m.innerTrack()->phi();
-            muon_innerTrack_qoverp_ = m.innerTrack()->qoverp();
-            muon_innerTrack_qoverpError_ = m.innerTrack()->qoverpError();
-            muon_innerTrack_validFraction_ = m.innerTrack()->validFraction();
-            muon_innerTrack_highPurity_ = m.innerTrack()->quality(reco::TrackBase::highPurity);
-            muon_innerTrack_hitPattern_trackerLayersWithMeasurement_ = m.innerTrack()->hitPattern().trackerLayersWithMeasurement();
-            muon_innerTrack_hitPattern_pixelLayersWithMeasurement_ = m.innerTrack()->hitPattern().pixelLayersWithMeasurement();
+            muon_innerTrack_pt_.push_back(m.innerTrack()->pt());
+            muon_innerTrack_p_.push_back(m.innerTrack()->p());
+            muon_innerTrack_eta_.push_back(m.innerTrack()->eta());
+            muon_innerTrack_phi_.push_back(m.innerTrack()->phi());
+            muon_innerTrack_qoverp_.push_back(m.innerTrack()->qoverp());
+            muon_innerTrack_qoverpError_.push_back(m.innerTrack()->qoverpError());
+            muon_innerTrack_validFraction_.push_back(m.innerTrack()->validFraction());
+            muon_innerTrack_highPurity_.push_back(m.innerTrack()->quality(reco::TrackBase::highPurity));
+            muon_innerTrack_hitPattern_trackerLayersWithMeasurement_.push_back(m.innerTrack()->hitPattern().trackerLayersWithMeasurement());
+            muon_innerTrack_hitPattern_pixelLayersWithMeasurement_.push_back(m.innerTrack()->hitPattern().pixelLayersWithMeasurement());
         } else {
-            muon_innerTrack_pt_ = 0;
-            muon_innerTrack_p_ = 0;
-            muon_innerTrack_eta_ = 0;
-            muon_innerTrack_phi_ = 0;
-            muon_innerTrack_qoverp_ = 0;
-            muon_innerTrack_qoverpError_ = 0;
-            muon_innerTrack_validFraction_ = 0;
-            muon_innerTrack_highPurity_ = 0;
-            muon_innerTrack_hitPattern_trackerLayersWithMeasurement_ = 0;
-            muon_innerTrack_hitPattern_pixelLayersWithMeasurement_ = 0;
+            muon_innerTrack_pt_.push_back(0);
+            muon_innerTrack_p_.push_back(0);
+            muon_innerTrack_eta_.push_back(0);
+            muon_innerTrack_phi_.push_back(0);
+            muon_innerTrack_qoverp_.push_back(0);
+            muon_innerTrack_qoverpError_.push_back(0);
+            muon_innerTrack_validFraction_.push_back(0);
+            muon_innerTrack_highPurity_.push_back(0);
+            muon_innerTrack_hitPattern_trackerLayersWithMeasurement_.push_back(0);
+            muon_innerTrack_hitPattern_pixelLayersWithMeasurement_.push_back(0);
         }
 
-        muon_caloCompatibility_ = m.caloCompatibility();
-        muon_calEnergy_ecal_time_ = m.calEnergy().ecal_time;
-        muon_calEnergy_em_ = m.calEnergy().em;
-        muon_calEnergy_emMax_ = m.calEnergy().emMax;
-        muon_calEnergy_emS25_ = m.calEnergy().emS25;
-        muon_calEnergy_emS9_ = m.calEnergy().emS9;
-        muon_calEnergy_had_ = m.calEnergy().had;
-        muon_calEnergy_hadMax_ = m.calEnergy().hadMax;
-        muon_calEnergy_hadS9_ = m.calEnergy().hadS9;
-        muon_calEnergy_hcal_time_ = m.calEnergy().hcal_time;
-        muon_calEnergy_ho_ = m.calEnergy().ho;
-        muon_calEnergy_hoS9_ = m.calEnergy().hoS9;
-        muon_calEnergy_tower_ = m.calEnergy().tower;
-        muon_calEnergy_towerS9_ = m.calEnergy().towerS9;
+        muon_caloCompatibility_.push_back(m.caloCompatibility());
+        muon_calEnergy_ecal_time_.push_back(m.calEnergy().ecal_time);
+        muon_calEnergy_em_.push_back(m.calEnergy().em);
+        muon_calEnergy_emMax_.push_back(m.calEnergy().emMax);
+        muon_calEnergy_emS25_.push_back(m.calEnergy().emS25);
+        muon_calEnergy_emS9_.push_back(m.calEnergy().emS9);
+        muon_calEnergy_had_.push_back(m.calEnergy().had);
+        muon_calEnergy_hadMax_.push_back(m.calEnergy().hadMax);
+        muon_calEnergy_hadS9_.push_back(m.calEnergy().hadS9);
+        muon_calEnergy_hcal_time_.push_back(m.calEnergy().hcal_time);
+        muon_calEnergy_ho_.push_back(m.calEnergy().ho);
+        muon_calEnergy_hoS9_.push_back(m.calEnergy().hoS9);
+        muon_calEnergy_tower_.push_back(m.calEnergy().tower);
+        muon_calEnergy_towerS9_.push_back(m.calEnergy().towerS9);
         if (m.calEnergy().ecal_id.subdetId() == EBDetId::Subdet) {
-            muon_calEnergy_ecal_ieta_ = ((EBDetId)m.calEnergy().ecal_id).ieta();
-            muon_calEnergy_ecal_iphi_ = ((EBDetId)m.calEnergy().ecal_id).iphi();
+            muon_calEnergy_ecal_ieta_.push_back(((EBDetId)m.calEnergy().ecal_id).ieta());
+            muon_calEnergy_ecal_iphi_.push_back(((EBDetId)m.calEnergy().ecal_id).iphi());
         } else if (m.calEnergy().ecal_id.subdetId() == EEDetId::Subdet) {
-            muon_calEnergy_ecal_ieta_ = ((EEDetId)m.calEnergy().ecal_id).ix();
-            muon_calEnergy_ecal_iphi_ = ((EEDetId)m.calEnergy().ecal_id).iy();
+            muon_calEnergy_ecal_ieta_.push_back(((EEDetId)m.calEnergy().ecal_id).ix());
+            muon_calEnergy_ecal_iphi_.push_back(((EEDetId)m.calEnergy().ecal_id).iy());
         } else if (m.calEnergy().ecal_id.subdetId() == ESDetId::Subdet) {
-            muon_calEnergy_ecal_ieta_ = ((ESDetId)m.calEnergy().ecal_id).six();
-            muon_calEnergy_ecal_iphi_ = ((ESDetId)m.calEnergy().ecal_id).siy();
+            muon_calEnergy_ecal_ieta_.push_back(((ESDetId)m.calEnergy().ecal_id).six());
+            muon_calEnergy_ecal_iphi_.push_back(((ESDetId)m.calEnergy().ecal_id).siy());
         } else {
-            muon_calEnergy_ecal_ieta_ = 0;
-            muon_calEnergy_ecal_iphi_ = 0;
+            muon_calEnergy_ecal_ieta_.push_back(0);
+            muon_calEnergy_ecal_iphi_.push_back(0);
         }
-        muon_calEnergy_hcal_ieta_ =  ((HcalDetId)m.calEnergy().hcal_id).ieta();
-        muon_calEnergy_hcal_iphi_ =  ((HcalDetId)m.calEnergy().hcal_id).iphi();
-        muon_calEnergy_hcal_depth_ = ((HcalDetId)m.calEnergy().hcal_id).depth();
-        muon_calEnergy_crossedHadRecHits_ieta_.clear();
-        muon_calEnergy_crossedHadRecHits_iphi_.clear();
-        muon_calEnergy_crossedHadRecHits_depth_.clear();
-        muon_calEnergy_crossedHadRecHits_energy_.clear();
-        muon_calEnergy_crossedHadRecHits_time_.clear();
-        muon_calEnergy_crossedHadRecHits_chi2_.clear();
+        muon_calEnergy_hcal_ieta_.push_back( ((HcalDetId)m.calEnergy().hcal_id).ieta());
+        muon_calEnergy_hcal_iphi_.push_back( ((HcalDetId)m.calEnergy().hcal_id).iphi());
+        muon_calEnergy_hcal_depth_.push_back(((HcalDetId)m.calEnergy().hcal_id).depth());
+        std::vector<int> v_ieta;
+        std::vector<int> v_iphi;
+        std::vector<int> v_depth;
+        std::vector<float> v_energy;
+        std::vector<float> v_time;
+        std::vector<float> v_chi2;
         for (auto it: m.calEnergy().crossedHadRecHits) {
-            muon_calEnergy_crossedHadRecHits_ieta_.push_back(it.detId.ieta());
-            muon_calEnergy_crossedHadRecHits_iphi_.push_back(it.detId.iphi());
-            muon_calEnergy_crossedHadRecHits_depth_.push_back(it.detId.depth());
-            muon_calEnergy_crossedHadRecHits_energy_.push_back(it.energy);
-            muon_calEnergy_crossedHadRecHits_time_.push_back(it.time);
-            muon_calEnergy_crossedHadRecHits_chi2_.push_back(it.chi2);
+            v_ieta.push_back(it.detId.ieta());
+            v_iphi.push_back(it.detId.iphi());
+            v_depth.push_back(it.detId.depth());
+            v_energy.push_back(it.energy);
+            v_time.push_back(it.time);
+            v_chi2.push_back(it.chi2);
         }
+        muon_calEnergy_crossedHadRecHits_ieta_.push_back(v_ieta);
+        muon_calEnergy_crossedHadRecHits_iphi_.push_back(v_iphi);
+        muon_calEnergy_crossedHadRecHits_depth_.push_back(v_depth);
+        muon_calEnergy_crossedHadRecHits_energy_.push_back(v_energy);
+        muon_calEnergy_crossedHadRecHits_time_.push_back(v_time);
+        muon_calEnergy_crossedHadRecHits_chi2_.push_back(v_chi2);
 
         // For now do deltaR matching, next iteration do sim hit matching
         int isGenMuon = 0;
@@ -251,43 +345,43 @@ void MuonTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
                 isGenPion = abs(g.pdgId())==211;
             }
         }
-        muon_gen_matches_muon_ = isGenMuon;
-        muon_gen_matches_pion_ = isGenPion;
-        muon_gen_deltaR_ = gen_DR;
-        muon_gen_pt_ = gen_pt;
-        muon_gen_eta_ = gen_eta;
-        muon_gen_phi_ = gen_phi;
-        muon_gen_mass_ = gen_mass;
+        muon_gen_matches_muon_.push_back(isGenMuon);
+        muon_gen_matches_pion_.push_back(isGenPion);
+        muon_gen_deltaR_.push_back(gen_DR);
+        muon_gen_pt_.push_back(gen_pt);
+        muon_gen_eta_.push_back(gen_eta);
+        muon_gen_phi_.push_back(gen_phi);
+        muon_gen_mass_.push_back(gen_mass);
 
         // Sim hit matching
         edm::RefToBase<reco::Muon> muonRef = muons->refAt(idx);
         reco::CandidateBaseRef muonBaseRef(muonRef);
         if (simInfoIsAvailable) {
           const auto& msi = (*simInfo)[muonBaseRef];
-          muon_gen_sim_primaryClass_ = msi.primaryClass;
-          muon_gen_sim_extendedClass_ = msi.extendedClass;
-          muon_gen_sim_flavour_ = msi.flavour;
-          muon_gen_sim_pdgId_ = msi.pdgId;
-          muon_gen_sim_pt_ = msi.p4.pt();
-          muon_gen_sim_eta_ = msi.p4.eta();
-          muon_gen_sim_phi_ = msi.p4.phi();
-          muon_gen_sim_mass_ = msi.p4.mass();
-          muon_gen_sim_tpAssoQuality_ = msi.tpAssoQuality;
+          muon_gen_sim_primaryClass_.push_back(msi.primaryClass);
+          muon_gen_sim_extendedClass_.push_back(msi.extendedClass);
+          muon_gen_sim_flavour_.push_back(msi.flavour);
+          muon_gen_sim_pdgId_.push_back(msi.pdgId);
+          muon_gen_sim_pt_.push_back(msi.p4.pt());
+          muon_gen_sim_eta_.push_back(msi.p4.eta());
+          muon_gen_sim_phi_.push_back(msi.p4.phi());
+          muon_gen_sim_mass_.push_back(msi.p4.mass());
+          muon_gen_sim_tpAssoQuality_.push_back(msi.tpAssoQuality);
         } else {
-          muon_gen_sim_primaryClass_ = 0;
-          muon_gen_sim_extendedClass_ = 0;
-          muon_gen_sim_flavour_ = 0;
-          muon_gen_sim_pdgId_ = 0;
-          muon_gen_sim_pt_ = 0;
-          muon_gen_sim_eta_ = 0;
-          muon_gen_sim_phi_ = 0;
-          muon_gen_sim_mass_ = 0;
-          muon_gen_sim_tpAssoQuality_ = 0;
+          muon_gen_sim_primaryClass_.push_back(0);
+          muon_gen_sim_extendedClass_.push_back(0);
+          muon_gen_sim_flavour_.push_back(0);
+          muon_gen_sim_pdgId_.push_back(0);
+          muon_gen_sim_pt_.push_back(0);
+          muon_gen_sim_eta_.push_back(0);
+          muon_gen_sim_phi_.push_back(0);
+          muon_gen_sim_mass_.push_back(0);
+          muon_gen_sim_tpAssoQuality_.push_back(0);
         }
         
-        if (m.p()>1.0) tree_->Fill();
 
         idx++;
     }
+    tree_->Fill();
 
 }

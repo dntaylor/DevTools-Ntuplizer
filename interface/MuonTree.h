@@ -49,6 +49,7 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
     edm::EDGetTokenT<edm::ValueMap<reco::MuonSimInfo>> simInfo_;
     edm::EDGetTokenT<edm::ValueMap<float>> caloMuonRun3v1Token_;
+    edm::EDGetTokenT<edm::ValueMap<float>> caloMuonRun3v2Token_;
 
     // configuration
     edm::ParameterSet muonAssociation_;
@@ -59,93 +60,94 @@ class MuonTree : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     int num_vertices_;
 
     // kinematics
-    float muon_pt_;
-    float muon_p_;
-    float muon_eta_;
-    float muon_phi_;
-    float muon_energy_;
-    float muon_mass_;
-    int muon_charge_;
+    std::vector<float> muon_pt_;
+    std::vector<float> muon_p_;
+    std::vector<float> muon_eta_;
+    std::vector<float> muon_phi_;
+    std::vector<float> muon_energy_;
+    std::vector<float> muon_mass_;
+    std::vector<int> muon_charge_;
 
     // id
-    int muon_isPFMuon_;
-    int muon_isTrackerMuon_;
-    int muon_isGlobalMuon_;
-    int muon_isStandAloneMuon_;
-    int muon_isCaloMuon_;
-    int muon_CutBasedIdLoose_;
-    int muon_CutBasedIdMedium_;
-    int muon_CutBasedIdMediumPrompt_;
-    int muon_CutBasedIdTight_;
-    int muon_PFIsoLoose_;
-    int muon_PFIsoTight_;
-    int muon_SoftCutBasedId_;
+    std::vector<int> muon_isPFMuon_;
+    std::vector<int> muon_isTrackerMuon_;
+    std::vector<int> muon_isGlobalMuon_;
+    std::vector<int> muon_isStandAloneMuon_;
+    std::vector<int> muon_isCaloMuon_;
+    std::vector<int> muon_CutBasedIdLoose_;
+    std::vector<int> muon_CutBasedIdMedium_;
+    std::vector<int> muon_CutBasedIdMediumPrompt_;
+    std::vector<int> muon_CutBasedIdTight_;
+    std::vector<int> muon_PFIsoLoose_;
+    std::vector<int> muon_PFIsoTight_;
+    std::vector<int> muon_SoftCutBasedId_;
 
     // value maps
-    float muon_caloMuonRun3v1_;
+    std::vector<float> muon_caloMuonRun3v1_;
+    std::vector<float> muon_caloMuonRun3v2_;
 
     // isolation
-    int muon_isolationR03_nTracks_;
-    float muon_isolationR03_sumPt_;
+    std::vector<int> muon_isolationR03_nTracks_;
+    std::vector<float> muon_isolationR03_sumPt_;
 
     // inner track
-    float muon_innerTrack_pt_;
-    float muon_innerTrack_p_;
-    float muon_innerTrack_eta_;
-    float muon_innerTrack_phi_;
-    float muon_innerTrack_qoverp_;
-    float muon_innerTrack_qoverpError_;
-    float muon_innerTrack_validFraction_;
-    int muon_innerTrack_highPurity_;
-    int muon_innerTrack_hitPattern_trackerLayersWithMeasurement_;
-    int muon_innerTrack_hitPattern_pixelLayersWithMeasurement_;
+    std::vector<float> muon_innerTrack_pt_;
+    std::vector<float> muon_innerTrack_p_;
+    std::vector<float> muon_innerTrack_eta_;
+    std::vector<float> muon_innerTrack_phi_;
+    std::vector<float> muon_innerTrack_qoverp_;
+    std::vector<float> muon_innerTrack_qoverpError_;
+    std::vector<float> muon_innerTrack_validFraction_;
+    std::vector<int> muon_innerTrack_highPurity_;
+    std::vector<int> muon_innerTrack_hitPattern_trackerLayersWithMeasurement_;
+    std::vector<int> muon_innerTrack_hitPattern_pixelLayersWithMeasurement_;
 
     // calo compatibility
-    float muon_caloCompatibility_;
-    float muon_calEnergy_ecal_time_;
-    float muon_calEnergy_em_;
-    float muon_calEnergy_emMax_;
-    float muon_calEnergy_emS25_;
-    float muon_calEnergy_emS9_;
-    float muon_calEnergy_had_;
-    float muon_calEnergy_hadMax_;
-    float muon_calEnergy_hadS9_;
-    float muon_calEnergy_hcal_time_;
-    float muon_calEnergy_ho_;
-    float muon_calEnergy_hoS9_;
-    float muon_calEnergy_tower_;
-    float muon_calEnergy_towerS9_;
-    int muon_calEnergy_ecal_ieta_;
-    int muon_calEnergy_ecal_iphi_;
-    int muon_calEnergy_hcal_ieta_;
-    int muon_calEnergy_hcal_iphi_;
-    int muon_calEnergy_hcal_depth_;
-    std::vector<int> muon_calEnergy_crossedHadRecHits_ieta_;
-    std::vector<int> muon_calEnergy_crossedHadRecHits_iphi_;
-    std::vector<int> muon_calEnergy_crossedHadRecHits_depth_;
-    std::vector<float> muon_calEnergy_crossedHadRecHits_energy_;
-    std::vector<float> muon_calEnergy_crossedHadRecHits_time_;
-    std::vector<float> muon_calEnergy_crossedHadRecHits_chi2_;
+    std::vector<float> muon_caloCompatibility_;
+    std::vector<float> muon_calEnergy_ecal_time_;
+    std::vector<float> muon_calEnergy_em_;
+    std::vector<float> muon_calEnergy_emMax_;
+    std::vector<float> muon_calEnergy_emS25_;
+    std::vector<float> muon_calEnergy_emS9_;
+    std::vector<float> muon_calEnergy_had_;
+    std::vector<float> muon_calEnergy_hadMax_;
+    std::vector<float> muon_calEnergy_hadS9_;
+    std::vector<float> muon_calEnergy_hcal_time_;
+    std::vector<float> muon_calEnergy_ho_;
+    std::vector<float> muon_calEnergy_hoS9_;
+    std::vector<float> muon_calEnergy_tower_;
+    std::vector<float> muon_calEnergy_towerS9_;
+    std::vector<int> muon_calEnergy_ecal_ieta_;
+    std::vector<int> muon_calEnergy_ecal_iphi_;
+    std::vector<int> muon_calEnergy_hcal_ieta_;
+    std::vector<int> muon_calEnergy_hcal_iphi_;
+    std::vector<int> muon_calEnergy_hcal_depth_;
+    std::vector<std::vector<int> > muon_calEnergy_crossedHadRecHits_ieta_;
+    std::vector<std::vector<int> > muon_calEnergy_crossedHadRecHits_iphi_;
+    std::vector<std::vector<int> > muon_calEnergy_crossedHadRecHits_depth_;
+    std::vector<std::vector<float> > muon_calEnergy_crossedHadRecHits_energy_;
+    std::vector<std::vector<float> > muon_calEnergy_crossedHadRecHits_time_;
+    std::vector<std::vector<float> > muon_calEnergy_crossedHadRecHits_chi2_;
 
     // gen match
-    int muon_gen_matches_muon_;
-    int muon_gen_matches_pion_;
-    float muon_gen_deltaR_;
-    float muon_gen_pt_;
-    float muon_gen_eta_;
-    float muon_gen_phi_;
-    float muon_gen_mass_;
+    std::vector<int> muon_gen_matches_muon_;
+    std::vector<int> muon_gen_matches_pion_;
+    std::vector<float> muon_gen_deltaR_;
+    std::vector<float> muon_gen_pt_;
+    std::vector<float> muon_gen_eta_;
+    std::vector<float> muon_gen_phi_;
+    std::vector<float> muon_gen_mass_;
 
     // gen match via sim hit
-    int muon_gen_sim_primaryClass_;
-    int muon_gen_sim_extendedClass_;
-    int muon_gen_sim_flavour_;
-    int muon_gen_sim_pdgId_;
-    float muon_gen_sim_pt_;
-    float muon_gen_sim_eta_;
-    float muon_gen_sim_phi_;
-    float muon_gen_sim_mass_;
-    float muon_gen_sim_tpAssoQuality_;
+    std::vector<int> muon_gen_sim_primaryClass_;
+    std::vector<int> muon_gen_sim_extendedClass_;
+    std::vector<int> muon_gen_sim_flavour_;
+    std::vector<int> muon_gen_sim_pdgId_;
+    std::vector<float> muon_gen_sim_pt_;
+    std::vector<float> muon_gen_sim_eta_;
+    std::vector<float> muon_gen_sim_phi_;
+    std::vector<float> muon_gen_sim_mass_;
+    std::vector<float> muon_gen_sim_tpAssoQuality_;
 };
 
 void MuonTree::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
