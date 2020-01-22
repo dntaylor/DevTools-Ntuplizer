@@ -159,7 +159,16 @@ class DeepJetTree : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     std::vector<float> jet_daughter_isGoodEgamma_;
     std::vector<float> jet_daughter_isConvertedPhoton_;
 
-    // TODO: gen part truth
+    // gen part truth
+    bool jet_isTauHTauH_;
+    bool jet_isTauHTauM_;
+    bool jet_isTauHTauE_;
+    bool jet_isTauMTauM_;
+    bool jet_isTauMTauE_;
+    bool jet_isTauETauE_;
+    bool jet_isTauH_;
+    bool jet_isTauM_;
+    bool jet_isTauE_;
 
 };
 

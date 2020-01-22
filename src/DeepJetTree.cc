@@ -122,6 +122,17 @@ DeepJetTree::DeepJetTree(const edm::ParameterSet &iConfig) :
     tree_->Branch("jet_daughter_isGlobalMuon",                 &jet_daughter_isGlobalMuon_);
     tree_->Branch("jet_daughter_isGoodEgamma",                 &jet_daughter_isGoodEgamma_);
     tree_->Branch("jet_daughter_isConvertedPhoton",            &jet_daughter_isConvertedPhoton_);
+
+    // gen part truth
+    tree_->Branch("jet_isTauHTauH",                            &jet_isTauHTauH_);
+    tree_->Branch("jet_isTauHTauM",                            &jet_isTauHTauM_);
+    tree_->Branch("jet_isTauHTauE",                            &jet_isTauHTauE_);
+    tree_->Branch("jet_isTauMTauM",                            &jet_isTauMTauM_);
+    tree_->Branch("jet_isTauMTauE",                            &jet_isTauMTauE_);
+    tree_->Branch("jet_isTauETauE",                            &jet_isTauETauE_);
+    tree_->Branch("jet_isTauH",                                &jet_isTauH_);
+    tree_->Branch("jet_isTauM",                                &jet_isTauM_);
+    tree_->Branch("jet_isTauE",                                &jet_isTauE_);
 }
 
 DeepJetTree::~DeepJetTree() { }
@@ -313,6 +324,62 @@ void DeepJetTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
             jet_daughter_isGoodEgamma_.push_back(dau->isGoodEgamma());
             jet_daughter_isConvertedPhoton_.push_back(dau->isConvertedPhoton());
         }
+
+        // gen part truth
+        int nHadronic = 0;
+        int nMuon = 0;
+        int nElectron = 0;
+        bool isTau = false;
+        bool isMuon = false;
+        bool isElectron = false;
+        bool isHadronic = false;
+        for (const auto g: *genParticles) {
+            isTau = false;
+            isMuon = false;
+            isElectron = false;
+            isHadronic = false;
+            if (abs(g.pdgId())==15) {
+                if (reco::deltaR(j,g)>0.4) continue;
+                // get decay mode
+                for (size_t d=0; d<g.numberOfDaughters(); d++) {
+                    if (abs(g.daughter(d)->pdgId())==15) {
+                        isTau = true;
+                        break;
+                    } else if (abs(g.daughter(d)->pdgId())==13) {
+                        isMuon = true;
+                        break;
+                    } else if (abs(g.daughter(d)->pdgId())==11) {
+                        isElectron = true;
+                        break;
+                    } else if (abs(g.daughter(d)->pdgId())!=16 && abs(g.daughter(d)->pdgId())!=14 && abs(g.daughter(d)->pdgId())!=12) {
+                        // TODO: can instead start counting neutral and charged to get DM
+                        if (g.daughter(d)->pdgId()!=22) {
+                            isHadronic = true;
+                            break;
+                        }
+                    }
+                }
+                if (isTau) {
+                    continue; // not last tau before decay
+                } else if (isMuon) {
+                    nMuon++;
+                } else if (isElectron) {
+                    nElectron++;
+                } else if (isHadronic) {
+                    nHadronic++;
+                }
+            }
+        }
+
+        jet_isTauHTauH_ = (nHadronic==2 && nMuon==0 && nElectron==0);
+        jet_isTauHTauM_ = (nHadronic==1 && nMuon==1 && nElectron==0);
+        jet_isTauHTauE_ = (nHadronic==1 && nMuon==0 && nElectron==1);
+        jet_isTauMTauM_ = (nHadronic==0 && nMuon==2 && nElectron==0);
+        jet_isTauMTauE_ = (nHadronic==0 && nMuon==1 && nElectron==1);
+        jet_isTauETauE_ = (nHadronic==0 && nMuon==0 && nElectron==2);
+        jet_isTauH_     = (nHadronic==1 && nMuon==0 && nElectron==0);
+        jet_isTauM_     = (nHadronic==0 && nMuon==1 && nElectron==0);
+        jet_isTauE_     = (nHadronic==0 && nMuon==0 && nElectron==1);
 
         if (j.pt()>20.0) tree_->Fill();
 
