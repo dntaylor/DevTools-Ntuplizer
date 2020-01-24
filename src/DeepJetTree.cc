@@ -87,8 +87,8 @@ DeepJetTree::DeepJetTree(const edm::ParameterSet &iConfig) :
 
     tree_->Branch("jet_daughter_etaAtVtx",                     &jet_daughter_etaAtVtx_);
     tree_->Branch("jet_daughter_phiAtVtx",                     &jet_daughter_phiAtVtx_);
-    tree_->Branch("jet_daughter_vertexChi2",                   &jet_daughter_vertexChi2_);
-    tree_->Branch("jet_daughter_vertexNdof",                   &jet_daughter_vertexNdof_);
+    //tree_->Branch("jet_daughter_vertexChi2",                   &jet_daughter_vertexChi2_);
+    //tree_->Branch("jet_daughter_vertexNdof",                   &jet_daughter_vertexNdof_);
     tree_->Branch("jet_daughter_vx",                           &jet_daughter_vx_);
     tree_->Branch("jet_daughter_vy",                           &jet_daughter_vy_);
     tree_->Branch("jet_daughter_vz",                           &jet_daughter_vz_);
@@ -96,9 +96,9 @@ DeepJetTree::DeepJetTree(const edm::ParameterSet &iConfig) :
     tree_->Branch("jet_daughter_dxyError",                     &jet_daughter_dxyError_);
     tree_->Branch("jet_daughter_dz",                           &jet_daughter_dz_);
     tree_->Branch("jet_daughter_dzError",                      &jet_daughter_dzError_);
-    tree_->Branch("jet_daughter_dtime",                        &jet_daughter_dtime_);
-    tree_->Branch("jet_daughter_time",                         &jet_daughter_time_);
-    tree_->Branch("jet_daughter_timeError",                    &jet_daughter_timeError_);
+    //tree_->Branch("jet_daughter_dtime",                        &jet_daughter_dtime_);
+    //tree_->Branch("jet_daughter_time",                         &jet_daughter_time_);
+    //tree_->Branch("jet_daughter_timeError",                    &jet_daughter_timeError_);
 
     tree_->Branch("jet_daughter_pdgId",                        &jet_daughter_pdgId_);
 
@@ -107,21 +107,21 @@ DeepJetTree::DeepJetTree(const edm::ParameterSet &iConfig) :
     tree_->Branch("jet_daughter_trackerLayersWithMeasurement", &jet_daughter_trackerLayersWithMeasurement_);
     tree_->Branch("jet_daughter_trackHighPurity",              &jet_daughter_trackHighPurity_);
 
-    tree_->Branch("jet_daughter_caloFraction",                 &jet_daughter_caloFraction_);
-    tree_->Branch("jet_daughter_hcalFraction",                 &jet_daughter_hcalFraction_);
+    //tree_->Branch("jet_daughter_caloFraction",                 &jet_daughter_caloFraction_);
+    //tree_->Branch("jet_daughter_hcalFraction",                 &jet_daughter_hcalFraction_);
 
     tree_->Branch("jet_daughter_puppiWeight",                  &jet_daughter_puppiWeight_);
     tree_->Branch("jet_daughter_puppiWeightNoLep",             &jet_daughter_puppiWeightNoLep_);
 
     tree_->Branch("jet_daughter_isIsolatedChargedHadron",      &jet_daughter_isIsolatedChargedHadron_);
-    tree_->Branch("jet_daughter_isMuon",                       &jet_daughter_isMuon_);
-    tree_->Branch("jet_daughter_isElectron",                   &jet_daughter_isElectron_);
-    tree_->Branch("jet_daughter_isPhoton",                     &jet_daughter_isPhoton_);
+    //tree_->Branch("jet_daughter_isMuon",                       &jet_daughter_isMuon_);
+    //tree_->Branch("jet_daughter_isElectron",                   &jet_daughter_isElectron_);
+    //tree_->Branch("jet_daughter_isPhoton",                     &jet_daughter_isPhoton_);
     tree_->Branch("jet_daughter_isStandAloneMuon",             &jet_daughter_isStandAloneMuon_);
     tree_->Branch("jet_daughter_isTrackerMuon",                &jet_daughter_isTrackerMuon_);
     tree_->Branch("jet_daughter_isGlobalMuon",                 &jet_daughter_isGlobalMuon_);
     tree_->Branch("jet_daughter_isGoodEgamma",                 &jet_daughter_isGoodEgamma_);
-    tree_->Branch("jet_daughter_isConvertedPhoton",            &jet_daughter_isConvertedPhoton_);
+    //tree_->Branch("jet_daughter_isConvertedPhoton",            &jet_daughter_isConvertedPhoton_);
 
     // gen part truth
     tree_->Branch("jet_isTauHTauH",                            &jet_isTauHTauH_);
@@ -133,6 +133,11 @@ DeepJetTree::DeepJetTree(const edm::ParameterSet &iConfig) :
     tree_->Branch("jet_isTauH",                                &jet_isTauH_);
     tree_->Branch("jet_isTauM",                                &jet_isTauM_);
     tree_->Branch("jet_isTauE",                                &jet_isTauE_);
+    tree_->Branch("jet_isB",                                   &jet_isB_);
+    tree_->Branch("jet_isC",                                   &jet_isC_);
+    tree_->Branch("jet_isS",                                   &jet_isS_);
+    tree_->Branch("jet_isUD",                                  &jet_isUD_);
+    tree_->Branch("jet_isG",                                   &jet_isG_);
 }
 
 DeepJetTree::~DeepJetTree() { }
@@ -221,8 +226,8 @@ void DeepJetTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
 
         jet_daughter_etaAtVtx_.clear();
         jet_daughter_phiAtVtx_.clear();
-        jet_daughter_vertexChi2_.clear();
-        jet_daughter_vertexNdof_.clear();
+        //jet_daughter_vertexChi2_.clear();
+        //jet_daughter_vertexNdof_.clear();
         jet_daughter_vx_.clear();
         jet_daughter_vy_.clear();
         jet_daughter_vz_.clear();
@@ -230,9 +235,9 @@ void DeepJetTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
         jet_daughter_dxyError_.clear();
         jet_daughter_dz_.clear();
         jet_daughter_dzError_.clear();
-        jet_daughter_dtime_.clear();
-        jet_daughter_time_.clear();
-        jet_daughter_timeError_.clear();
+        //jet_daughter_dtime_.clear();
+        //jet_daughter_time_.clear();
+        //jet_daughter_timeError_.clear();
 
         jet_daughter_pdgId_.clear();
 
@@ -241,21 +246,21 @@ void DeepJetTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
         jet_daughter_trackerLayersWithMeasurement_.clear();
         jet_daughter_trackHighPurity_.clear();
 
-        jet_daughter_caloFraction_.clear();
-        jet_daughter_hcalFraction_.clear();
+        //jet_daughter_caloFraction_.clear();
+        //jet_daughter_hcalFraction_.clear();
 
         jet_daughter_puppiWeight_.clear();
         jet_daughter_puppiWeightNoLep_.clear();
 
         jet_daughter_isIsolatedChargedHadron_.clear();
-        jet_daughter_isMuon_.clear();
-        jet_daughter_isElectron_.clear();
-        jet_daughter_isPhoton_.clear();
+        //jet_daughter_isMuon_.clear();
+        //jet_daughter_isElectron_.clear();
+        //jet_daughter_isPhoton_.clear();
         jet_daughter_isStandAloneMuon_.clear();
         jet_daughter_isTrackerMuon_.clear();
         jet_daughter_isGlobalMuon_.clear();
         jet_daughter_isGoodEgamma_.clear();
-        jet_daughter_isConvertedPhoton_.clear();
+        //jet_daughter_isConvertedPhoton_.clear();
 
         for (size_t d=0; d<j.numberOfDaughters(); d++) {
             const pat::PackedCandidate * dau = (pat::PackedCandidate*)j.daughter(d);
@@ -273,8 +278,8 @@ void DeepJetTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
                 jet_daughter_dxyError_.push_back(dau->dxyError());
                 jet_daughter_dz_.push_back(dau->dz());
                 jet_daughter_dzError_.push_back(dau->dzError());
-                jet_daughter_vertexChi2_.push_back(dau->vertexChi2());
-                jet_daughter_vertexNdof_.push_back(dau->vertexNdof());
+                //jet_daughter_vertexChi2_.push_back(dau->vertexChi2());
+                //jet_daughter_vertexNdof_.push_back(dau->vertexNdof());
                 jet_daughter_vx_.push_back(dau->vx());
                 jet_daughter_vy_.push_back(dau->vy());
                 jet_daughter_vz_.push_back(dau->vz());
@@ -290,8 +295,8 @@ void DeepJetTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
                 jet_daughter_dxyError_.push_back(0);
                 jet_daughter_dz_.push_back(0);
                 jet_daughter_dzError_.push_back(0);
-                jet_daughter_vertexChi2_.push_back(0);
-                jet_daughter_vertexNdof_.push_back(0);
+                //jet_daughter_vertexChi2_.push_back(0);
+                //jet_daughter_vertexNdof_.push_back(0);
                 jet_daughter_vx_.push_back(0);
                 jet_daughter_vy_.push_back(0);
                 jet_daughter_vz_.push_back(0);
@@ -302,30 +307,31 @@ void DeepJetTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
                 jet_daughter_trackHighPurity_.push_back(0);
             }
 
-            jet_daughter_dtime_.push_back(dau->dtime());
-            jet_daughter_time_.push_back(dau->time());
-            jet_daughter_timeError_.push_back(dau->timeError());
+            //jet_daughter_dtime_.push_back(dau->dtime());
+            //jet_daughter_time_.push_back(dau->time());
+            //jet_daughter_timeError_.push_back(dau->timeError());
 
             jet_daughter_pdgId_.push_back(dau->pdgId());
 
-            jet_daughter_caloFraction_.push_back(dau->caloFraction());
-            jet_daughter_hcalFraction_.push_back(dau->hcalFraction());
+            //jet_daughter_caloFraction_.push_back(dau->caloFraction());
+            //jet_daughter_hcalFraction_.push_back(dau->hcalFraction());
 
             jet_daughter_puppiWeight_.push_back(dau->puppiWeight());
             jet_daughter_puppiWeightNoLep_.push_back(dau->puppiWeightNoLep());
 
             jet_daughter_isIsolatedChargedHadron_.push_back(dau->isIsolatedChargedHadron());
-            jet_daughter_isMuon_.push_back(dau->isMuon());
-            jet_daughter_isElectron_.push_back(dau->isElectron());
-            jet_daughter_isPhoton_.push_back(dau->isPhoton());
+            //jet_daughter_isMuon_.push_back(dau->isMuon());
+            //jet_daughter_isElectron_.push_back(dau->isElectron());
+            //jet_daughter_isPhoton_.push_back(dau->isPhoton());
             jet_daughter_isStandAloneMuon_.push_back(dau->isStandAloneMuon());
             jet_daughter_isTrackerMuon_.push_back(dau->isTrackerMuon());
             jet_daughter_isGlobalMuon_.push_back(dau->isGlobalMuon());
             jet_daughter_isGoodEgamma_.push_back(dau->isGoodEgamma());
-            jet_daughter_isConvertedPhoton_.push_back(dau->isConvertedPhoton());
+            //jet_daughter_isConvertedPhoton_.push_back(dau->isConvertedPhoton());
         }
 
         // gen part truth
+        bool keep = (j.pt()>20.0 && abs(j.eta())<2.5);
         int nHadronic = 0;
         int nMuon = 0;
         int nElectron = 0;
@@ -333,6 +339,20 @@ void DeepJetTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
         bool isMuon = false;
         bool isElectron = false;
         bool isHadronic = false;
+        jet_isTauHTauH_ = false;
+        jet_isTauHTauM_ = false;
+        jet_isTauHTauE_ = false;
+        jet_isTauMTauM_ = false;
+        jet_isTauMTauE_ = false;
+        jet_isTauETauE_ = false;
+        jet_isTauH_ = false;
+        jet_isTauM_ = false;
+        jet_isTauE_ = false;
+        jet_isB_ = false;
+        jet_isC_ = false;
+        jet_isS_ = false;
+        jet_isUD_ = false;
+        jet_isG_ = false;
         for (const auto g: *genParticles) {
             isTau = false;
             isMuon = false;
@@ -371,17 +391,35 @@ void DeepJetTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
             }
         }
 
-        jet_isTauHTauH_ = (nHadronic==2 && nMuon==0 && nElectron==0);
-        jet_isTauHTauM_ = (nHadronic==1 && nMuon==1 && nElectron==0);
-        jet_isTauHTauE_ = (nHadronic==1 && nMuon==0 && nElectron==1);
-        jet_isTauMTauM_ = (nHadronic==0 && nMuon==2 && nElectron==0);
-        jet_isTauMTauE_ = (nHadronic==0 && nMuon==1 && nElectron==1);
-        jet_isTauETauE_ = (nHadronic==0 && nMuon==0 && nElectron==2);
-        jet_isTauH_     = (nHadronic==1 && nMuon==0 && nElectron==0);
-        jet_isTauM_     = (nHadronic==0 && nMuon==1 && nElectron==0);
-        jet_isTauE_     = (nHadronic==0 && nMuon==0 && nElectron==1);
+        int nTau = nHadronic+nMuon+nElectron;
+        if (nTau==2 || nTau==1) {
+            jet_isTauHTauH_ = (nHadronic==2 && nMuon==0 && nElectron==0);
+            jet_isTauHTauM_ = (nHadronic==1 && nMuon==1 && nElectron==0);
+            jet_isTauHTauE_ = (nHadronic==1 && nMuon==0 && nElectron==1);
+            jet_isTauMTauM_ = (nHadronic==0 && nMuon==2 && nElectron==0);
+            jet_isTauMTauE_ = (nHadronic==0 && nMuon==1 && nElectron==1);
+            jet_isTauETauE_ = (nHadronic==0 && nMuon==0 && nElectron==2);
+            jet_isTauH_     = (nHadronic==1 && nMuon==0 && nElectron==0);
+            jet_isTauM_     = (nHadronic==0 && nMuon==1 && nElectron==0);
+            jet_isTauE_     = (nHadronic==0 && nMuon==0 && nElectron==1);
+        } else if (j.hadronFlavour()==5) {
+            jet_isB_ = true;
+        } else if (j.hadronFlavour()==4) {
+            jet_isC_ = true;
+        } else if (std::abs(j.partonFlavour())==3) {
+            jet_isS_ = true;
+        } else if (std::abs(j.partonFlavour())==2 || std::abs(j.partonFlavour())==1) {
+            jet_isUD_ = true;
+        } else if (j.partonFlavour()==21) {
+            jet_isG_ = true;
+            // randomly drop 95% of gluon to save space
+            if ((double(rand()) / (double(RAND_MAX) + 1.0))>0.05) keep = false;
+        } else {
+            // require a gen match
+            keep = false;
+        }
 
-        if (j.pt()>20.0) tree_->Fill();
+        if (keep) tree_->Fill();
 
         idx++;
     }

@@ -123,8 +123,8 @@ class DeepJetTree : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 
     std::vector<float> jet_daughter_etaAtVtx_;
     std::vector<float> jet_daughter_phiAtVtx_;
-    std::vector<float> jet_daughter_vertexChi2_;
-    std::vector<float> jet_daughter_vertexNdof_;
+    //std::vector<float> jet_daughter_vertexChi2_;
+    //std::vector<float> jet_daughter_vertexNdof_;
     std::vector<float> jet_daughter_vx_;
     std::vector<float> jet_daughter_vy_;
     std::vector<float> jet_daughter_vz_;
@@ -132,9 +132,9 @@ class DeepJetTree : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     std::vector<float> jet_daughter_dxyError_;
     std::vector<float> jet_daughter_dz_;
     std::vector<float> jet_daughter_dzError_;
-    std::vector<float> jet_daughter_dtime_;
-    std::vector<float> jet_daughter_time_;
-    std::vector<float> jet_daughter_timeError_;
+    //std::vector<float> jet_daughter_dtime_;
+    //std::vector<float> jet_daughter_time_;
+    //std::vector<float> jet_daughter_timeError_;
 
     std::vector<float> jet_daughter_pdgId_;
 
@@ -143,21 +143,21 @@ class DeepJetTree : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     std::vector<float> jet_daughter_trackerLayersWithMeasurement_;
     std::vector<float> jet_daughter_trackHighPurity_;
 
-    std::vector<float> jet_daughter_caloFraction_;
-    std::vector<float> jet_daughter_hcalFraction_;
+    //std::vector<float> jet_daughter_caloFraction_;
+    //std::vector<float> jet_daughter_hcalFraction_;
 
     std::vector<float> jet_daughter_puppiWeight_;
     std::vector<float> jet_daughter_puppiWeightNoLep_;
 
     std::vector<float> jet_daughter_isIsolatedChargedHadron_;
-    std::vector<float> jet_daughter_isMuon_;
-    std::vector<float> jet_daughter_isElectron_;
-    std::vector<float> jet_daughter_isPhoton_;
+    //std::vector<float> jet_daughter_isMuon_;
+    //std::vector<float> jet_daughter_isElectron_;
+    //std::vector<float> jet_daughter_isPhoton_;
     std::vector<float> jet_daughter_isStandAloneMuon_;
     std::vector<float> jet_daughter_isTrackerMuon_;
     std::vector<float> jet_daughter_isGlobalMuon_;
     std::vector<float> jet_daughter_isGoodEgamma_;
-    std::vector<float> jet_daughter_isConvertedPhoton_;
+    //std::vector<float> jet_daughter_isConvertedPhoton_;
 
     // gen part truth
     bool jet_isTauHTauH_;
@@ -169,6 +169,11 @@ class DeepJetTree : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     bool jet_isTauH_;
     bool jet_isTauM_;
     bool jet_isTauE_;
+    bool jet_isB_;
+    bool jet_isC_;
+    bool jet_isS_;
+    bool jet_isUD_;
+    bool jet_isG_;
 
 };
 
