@@ -50,6 +50,15 @@ class DeepDiTau {
     }
 
     template <typename T>
+    static float getValueLogLinear(T value, float min_value, float max_value) {
+      const float fixed_value = getValue(value);
+      const float clamped_value = std::clamp(fixed_value, min_value, max_value);
+      float transformed_value = (log(clamped_value) - log(min_value)) / (log(max_value) - log(min_value));
+      //std::cout << "loglinearized " << value << " " << min_value << " " << max_value << " " << transformed_value << std::endl;
+      return transformed_value;
+    }
+
+    template <typename T>
     static float getValueNorm(T value, float mean, float sigma, float n_sigmas_max = -1) {
       const float fixed_value = getValue(value);
       const float norm_value = (fixed_value - mean) / sigma;

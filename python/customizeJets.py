@@ -51,10 +51,34 @@ def customizeJets(process,coll,srcLabel='jets',postfix='',**kwargs):
     #################
     ### embed ids ###
     #################
+    module = cms.EDProducer('DeepDiTauProducer',
+        src = cms.InputTag(jSrc),
+        DeepDiTauConfiguration = cms.PSet(
+            memmapped = cms.bool(False),
+            graphDefinitions = cms.VPSet(
+                cms.PSet(
+                    name = cms.string('ditau2017v1'),
+                    path = cms.FileInPath('DevTools/Ntuplizer/data/ditau_2017_v1.pb'),
+                    means = cms.FileInPath('DevTools/Ntuplizer/data/ditau_2017_v1_means_sigmas.txt'),
+                ),
+                cms.PSet(
+                    name = cms.string('ditau2017MDv1'),
+                    path = cms.FileInPath('DevTools/Ntuplizer/data/ditau_2017_md_v1.pb'),
+                    means = cms.FileInPath('DevTools/Ntuplizer/data/ditau_2017_md_v1_means_sigmas.txt'),
+                ),
+            ),
+        ),
+    )
+    modName = 'deepDiTau{0}'.format(postfix)
+    setattr(process,modName,module)
+    path *= getattr(process,modName)
+
     module = cms.EDProducer(
         "JetIdEmbedder",
         src = cms.InputTag(jSrc),
         discriminator = cms.string('pileupJetId:fullDiscriminant'),
+        ditau2017v1 = cms.InputTag("deepDiTau"+postfix,"ditau2017v1"),
+        ditau2017MDv1 = cms.InputTag("deepDiTau"+postfix,"ditau2017MDv1"),
     )
     modName = 'jID{0}'.format(postfix)
     setattr(process,modName,module)

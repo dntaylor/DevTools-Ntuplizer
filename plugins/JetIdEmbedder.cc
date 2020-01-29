@@ -14,12 +14,16 @@ class JetIdEmbedder : public edm::stream::EDProducer<> {
   private:
     std::string puDisc_;
     edm::EDGetTokenT<edm::View<pat::Jet> > srcToken_;
+    edm::EDGetTokenT<edm::ValueMap<float>> ditau2017v1Token_;
+    edm::EDGetTokenT<edm::ValueMap<float>> ditau2017MDv1Token_;
 };
 
 JetIdEmbedder::JetIdEmbedder(const edm::ParameterSet& pset):
   puDisc_(pset.exists("discriminator") ? pset.getParameter<std::string>("discriminator") : "pileupJetId:fullDiscriminant"),
   srcToken_(consumes<edm::View<pat::Jet> >(pset.getParameter<edm::InputTag>("src")))
 {
+  if (pset.exists("ditau2017v1")) { ditau2017v1Token_ = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("ditau2017v1")); }
+  if (pset.exists("ditau2017MDv1")) { ditau2017MDv1Token_ = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("ditau2017MDv1")); }
   produces<pat::JetCollection>();
 }
 
@@ -28,6 +32,12 @@ void JetIdEmbedder::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   edm::Handle<edm::View<pat::Jet> > input;
   evt.getByToken(srcToken_, input);
+
+  edm::Handle<edm::ValueMap<float> > ditau2017v1;
+  bool ditau2017v1Valid = evt.getByToken(ditau2017v1Token_, ditau2017v1);
+
+  edm::Handle<edm::ValueMap<float> > ditau2017MDv1;
+  bool ditau2017MDv1Valid = evt.getByToken(ditau2017MDv1Token_, ditau2017MDv1);
 
   output->reserve(input->size());
   for (size_t i = 0; i < input->size(); ++i) {
@@ -145,6 +155,13 @@ void JetIdEmbedder::produce(edm::Event& evt, const edm::EventSetup& es) {
       }
 
     jet.addUserInt("puID", passPU);
+    float ditau2017v1Value = 0;
+    float ditau2017MDv1Value = 0;
+    edm::Ref<edm::View<pat::Jet> > jRef(input,i);
+    if (ditau2017v1Valid) ditau2017v1Value = (*ditau2017v1)[jRef];
+    if (ditau2017MDv1Valid) ditau2017MDv1Value = (*ditau2017MDv1)[jRef];
+    jet.addUserFloat("ditau2017v1",ditau2017v1Value);
+    jet.addUserFloat("ditau2017MDv1",ditau2017MDv1Value);
     output->push_back(jet);
   }
 

@@ -632,6 +632,9 @@ jetBranches = commonJetCandidates.clone(
     energy_jetEnUp                               = cms.vstring('? hasUserCand("JetEnUp") ? userCand("JetEnUp").energy() : 0','F'),
     pt_jetEnDown                                 = cms.vstring('? hasUserCand("JetEnDown") ? userCand("JetEnDown").pt() : 0','F'),
     energy_jetEnDown                             = cms.vstring('? hasUserCand("JetEnDown") ? userCand("JetEnDown").energy() : 0 ','F'),
+    # deep ditau
+    deepDiTau_ditau2017v1                        = cms.vstring('? hasUserFloat("ditau2017v1") ? userFloat("ditau2017v1") : 0', 'F'),
+    deepDiTau_ditau2017DMv1                      = cms.vstring('? hasUserFloat("ditau2017DMv1") ? userFloat("ditau2017DMv1") : 0', 'F'),
 )
 
 jetTruths = [

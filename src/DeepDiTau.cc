@@ -237,10 +237,11 @@ void DeepDiTau::configure(const edm::ParameterSet& iConfig)
       inputNames_.push_back("input_6");
       inputShapes_.push_back(tensorflow::TensorShape{1, ditauInputs_2017_v1::PhotonBlockInputs::NumberOfInputs, ditauInputs_2017_v1::NumberOfPhotons}); 
       kPhoton_ = 5;
-      inputNames_.push_back("input_7");
-      inputShapes_.push_back(tensorflow::TensorShape{1, 1});
-      kMass_ = 6;
-      outputName_ = "concatenate"; // TODO lookup, and probably rerun and give a more consistent name
+      //inputNames_.push_back("input_7");
+      //inputShapes_.push_back(tensorflow::TensorShape{1, 1});
+      //kMass_ = 6;
+      //outputName_ = "concatenate_2/concat"; // TODO lookup, and probably rerun and give a more consistent name
+      outputName_ = "ID_pred/Softmax";
     }
 
     inputTensors_.resize(inputShapes_.size());
@@ -252,13 +253,14 @@ void DeepDiTau::configure(const edm::ParameterSet& iConfig)
     auto graph = cache_->getGraph(name_);
     for (size_t i=0; i<inputShapes_.size(); i++){
       const auto& name = graph.node(i).name();
-      const auto& shape = graph.node(i).attr().at("shape").shape();
       // not necessary to be in same order in the input graph
       auto it = std::find(inputNames_.begin(), inputNames_.end(), name);
       if (it==inputNames_.end()) {
         throw cms::Exception("DeepDiTau")
+          << "Processing graph " << name_ << ".\n"
           << "Unknown input name " << name;
       }
+      const auto& shape = graph.node(i).attr().at("shape").shape();
       int j = std::distance(inputNames_.begin(),it);
       for (int d=1; d<inputShapes_.at(j).dims(); d++) { // skip first dim since it should be -1 and not 1 like we define here for evaluation
         if (shape.dim(d).size() != inputShapes_.at(j).dim_size(d)) {
@@ -272,6 +274,7 @@ void DeepDiTau::configure(const edm::ParameterSet& iConfig)
     const auto& outName = graph.node(graph.node_size() - 1).name();
     if (outName!=outputName_) {
       throw cms::Exception("DeepDiTau")
+        << "Processing graph " << name_ << ".\n"
         << "Unexpected output name. Expected " << outputName_ << " found " << name << ".";
     }
 
@@ -364,7 +367,7 @@ void DeepDiTau::getPrediction_2017_md_v1(const pat::Jet& jet, std::vector<tensor
   createMuonBlockInputs(jet);
   createElectronBlockInputs(jet);
   createPhotonBlockInputs(jet);
-  createMassInput(jet);
+  //createMassInput(jet);
 
   //std::cout << "input jet " << inputTensors_.at(kJet_).second.DebugString() << std::endl;
   //std::cout << inputTensors_.at(kJet_).second.matrix<float>() << std::endl;
@@ -406,11 +409,11 @@ void DeepDiTau::createJetBlockInputs(const pat::Jet& jet) {
     namespace dnn = ditauInputs_2017_v1::JetBlockInputs;
     int v;
     v = dnn::jet_pt;
-    inputs.matrix<float>()(0, v) = getValueNorm(jet.pt(), means_[v], sigmas_[v]);
+    inputs.matrix<float>()(0, v) = getValueLogLinear(jet.pt(), means_[v], sigmas_[v]);
     v = dnn::jet_eta;
-    inputs.matrix<float>()(0, v) = getValueNorm(jet.eta(), means_[v], sigmas_[v]);
+    inputs.matrix<float>()(0, v) = getValueLinear(jet.eta(), means_[v], sigmas_[v]);
     v = dnn::jet_phi;
-    inputs.matrix<float>()(0, v) = getValueNorm(jet.phi(), means_[v], sigmas_[v]);
+    inputs.matrix<float>()(0, v) = getValueLinear(jet.phi(), means_[v], sigmas_[v]);
     v = dnn::jet_mass;
     inputs.matrix<float>()(0, v) = getValueNorm(jet.mass(), means_[v], sigmas_[v]);
     v = dnn::jet_jetCharge;

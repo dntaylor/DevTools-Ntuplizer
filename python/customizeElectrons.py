@@ -97,8 +97,9 @@ def customizeElectrons(process,coll,srcLabel='electrons',postfix='',**kwargs):
     process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag(eSrc)
     process.electronMVAValueMapProducer.srcMiniAOD = cms.InputTag(eSrc)
     process.electronMVAValueMapProducer.src = cms.InputTag("") # disable AOD in case we are running with secondaryInputFiles
-    process.electronRegressionValueMapProducer.srcMiniAOD = cms.InputTag(eSrc)
-    process.electronRegressionValueMapProducer.src = cms.InputTag("") # disable AOD in case we are running with secondaryInputFiles
+    # missing? 
+    #process.electronRegressionValueMapProducer.srcMiniAOD = cms.InputTag(eSrc)
+    #process.electronRegressionValueMapProducer.src = cms.InputTag("") # disable AOD in case we are running with secondaryInputFiles
 
     idDecisionLabels = [
         'cutBasedElectronID-Fall17-94X-V1-veto',

@@ -40,9 +40,10 @@ def customizePhotons(process,coll,srcLabel='photons',postfix='',**kwargs):
     #######################
     ### embed Isolation ###
     #######################
-    process.load("RecoEgamma/PhotonIdentification/PhotonIDValueMapProducer_cfi")
+    # missing?
+    #process.load("RecoEgamma/PhotonIdentification/PhotonIDValueMapProducer_cfi")
 
-    path *= process.photonIDValueMapProducer
+    #path *= process.photonIDValueMapProducer
 
     #################
     ### embed VID ###
@@ -62,15 +63,16 @@ def customizePhotons(process,coll,srcLabel='photons',postfix='',**kwargs):
 
     # update the collection
     process.egmPhotonIDs.physicsObjectSrc = cms.InputTag(pSrc)
-    process.egmPhotonIsolation.srcToIsolate = cms.InputTag(pSrc)
-    process.photonIDValueMapProducer.srcMiniAOD = cms.InputTag(pSrc)
-    process.photonIDValueMapProducer.src = cms.InputTag("") # disable AOD in case we are running with secondaryInputFiles
-    process.photonIDValueMapProducer.pfCandidates = cms.InputTag("") # disable AOD in case we are running with secondaryInputFiles
-    process.photonIDValueMapProducer.vertices = cms.InputTag("") # disable AOD in case we are running with secondaryInputFiles
-    process.photonMVAValueMapProducer.srcMiniAOD = cms.InputTag(pSrc)
-    process.photonMVAValueMapProducer.src = cms.InputTag("") # disable AOD in case we are running with secondaryInputFiles
-    process.photonRegressionValueMapProducer.srcMiniAOD = cms.InputTag(pSrc)
-    process.photonRegressionValueMapProducer.src = cms.InputTag("") # disable AOD in case we are running with secondaryInputFiles
+    # missing?
+    #process.egmPhotonIsolation.srcToIsolate = cms.InputTag(pSrc)
+    #process.photonIDValueMapProducer.srcMiniAOD = cms.InputTag(pSrc)
+    #process.photonIDValueMapProducer.src = cms.InputTag("") # disable AOD in case we are running with secondaryInputFiles
+    #process.photonIDValueMapProducer.pfCandidates = cms.InputTag("") # disable AOD in case we are running with secondaryInputFiles
+    #process.photonIDValueMapProducer.vertices = cms.InputTag("") # disable AOD in case we are running with secondaryInputFiles
+    #process.photonMVAValueMapProducer.srcMiniAOD = cms.InputTag(pSrc)
+    #process.photonMVAValueMapProducer.src = cms.InputTag("") # disable AOD in case we are running with secondaryInputFiles
+    #process.photonRegressionValueMapProducer.srcMiniAOD = cms.InputTag(pSrc)
+    #process.photonRegressionValueMapProducer.src = cms.InputTag("") # disable AOD in case we are running with secondaryInputFiles
 
     idDecisionLabels = [
         'cutBasedPhotonID-Fall17-94X-V1-loose',
