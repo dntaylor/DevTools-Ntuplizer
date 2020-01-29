@@ -4,4 +4,6 @@
 <use name="PhysicsTools/UtilAlgos"/>
 <use name="FWCore/ServiceRegistry"/>
 <use   name="PhysicsTools/TensorFlow"/>
-<flags EDM_PLUGIN="1"/>
+<export>
+  <lib   name="1"/>
+</export>
